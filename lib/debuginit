@@ -1,0 +1,106 @@
+#!/bin/sh
+
+
+debug_start()
+{
+   if grep -q debug /proc/cmdline; then
+      DEBUG_IS_ENABLED=1
+   else
+      DEBUG_IS_ENABLED=
+   fi
+}
+install_start()
+{
+ if grep -q install /proc/cmdline; then
+      INSTALL_IS_ENABLE=1
+   else
+      INSTALL_IS_ENABLE=
+   fi
+
+}
+
+
+debug_log()
+{
+   if [ "$DEBUG_IS_ENABLED" ]; then
+      echo "- debug: $*" >&2
+      log "- debug: $*"
+   fi
+}
+
+
+# log - store given text in /var/log/livedbg
+log()
+{
+   echo "$@" 2>/dev/null >>/var/log/livedbg
+}
+
+echolog()
+{
+   echo "$@"
+   log "$@"
+}
+
+# show information about the debug shell
+show_debug_banner()
+{
+   echo
+   echo "====="
+   echo ": Debugging started. Here is the root shell for you."
+   echo ": Type your desired commands or hit Ctrl+D to continue booting."
+   echo
+}
+
+# debug_shell
+# executed when debug boot parameter is present
+#
+debug_shell()
+{
+   if [ "$DEBUG_IS_ENABLED" ]; then
+      show_debug_banner
+      setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
+      echo
+   fi
+}
+
+fatal()
+{
+   echolog
+   header "Fatal error occured - $1"
+   echolog "Something went wrong and we can't continue. This should never happen."
+   echolog "Please reboot your computer with Ctrl+Alt+Delete ..."
+   echolog
+   setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
+}
+
+#############################
+
+
+
+problem()
+{
+   echolog
+   header "Fatal error occured "
+   echolog "Something went wrong and we can't continue. This should never happen."
+   echolog "Please reboot your computer with Ctrl+Alt+Delete ..."
+   echolog
+   setsid sh -c 'exec sh < /dev/tty1 >/dev/tty1 2>&1'
+}
+
+no_devicetgt()
+{
+   printf "The devicetgt %s, which is supposed to contain the\n" $1
+   printf "root file system, does not exist.\n"
+   printf "Please fix this problem and exit this shell.\n\n"
+}
+
+no_mount()
+{
+   printf "Could not mount devicetgt %s\n" $1
+   printf "Sleeping forever. Please reboot and fix the kernel command line.\n\n"
+   printf "Maybe the devicetgt is formatted with an unsupported file system?\n\n"
+   printf "Or maybe filesystem type autodetection went wrong, in which case\n"
+   printf "you should add the rootfstype=... parameter to the kernel command line.\n\n"
+   printf "Available partitions:\n"
+}
+

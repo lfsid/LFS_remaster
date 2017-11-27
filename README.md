@@ -36,4 +36,7 @@ Author of linux live kit : Tomas M <http://www.linux-live.org/>
 Author of kolomonggo init: purnomo hadi <purnomo.shinigami@gmail.com>
      
 initswitch beetwen systemd and sysvinit only for kolomonggo linux system hyrarki 
+
+
+
  

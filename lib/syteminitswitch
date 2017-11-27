@@ -1,0 +1,141 @@
+#!/bin/sh
+#
+# Functions library :: for init switch sysvinit and systemd,
+# kolomonggo  Linux init Kit scripts
+# Author: purnomo hadi kolomonggolinux.pe.hu
+# how to use 
+# call this with initsytemd or initsysvinit in kernel bot option
+#
+
+########################### GUIDE ############################
+
+########## sysvinit ###################              
+
+# /lib
+#   libudev.so   /lib/libudev.so.sysvinit 2>/dev/null
+#   libudev.so.1 /lib/libudev.so.sysvinit 2>/dev/null
+#
+# /bin
+#   none
+#
+# /sbin 
+#   udevd -> /opt/eudev/sbin/udevd
+#   udevadm -> /opt/eudev/sbin/udevadm-systemd
+#   poweroff -> halt
+#   reboot -> halt
+#   telinit -> init
+#   copy all from /opt/sysvinit/sbin/* to sbin
+#
+#
+# note sysvinit need console kit 
+
+############# systemd #################
+
+# /lib
+#   libudev.so   /lib/libudev.so.systemd
+#   libudev.so.1 /lib/libudev.so.systemd
+# /bin
+#   udevadm -> udevadm-systemd
+# /sbin 
+#   halt -> ../bin/systemctl
+#   init -> ../lib/systemd/systemd
+#   poweroff -> ../bin/systemctl
+#   reboot -> ../bin/systemctl
+#   runlevel -> ../bin/systemctl
+#   shutdown -> ../bin/systemctl
+#   telinit -> ../bin/systemctl    
+# ln -sfn ../bin/udevadm-systemd udevad
+
+###############################################################
+
+######################
+###### sysvinit ######
+######################
+
+init_sysvinit()
+{
+   
+
+ cd $1/lib
+   
+   echo -e "${GREEN}   >>${NC} creatng symlink libudev.so(.1) from libudev-sysvinit"
+   ln -sfn libudev.so.sysvinit libudev.so 2>/dev/null
+   ln -sfn libudev.so.sysvinit libudev.so.1 2>/dev/null
+
+ cd $1/bin
+  echo -e "${GREEN}   >>${NC} removing conflict udevd & udevadm in bin"
+   #  rm udevd 2>/dev/null 
+   rm udevadm 2>/dev/null
+
+ cd $1/sbin
+   echo -e "${GREEN}   >>${NC} creatng symlink udevd from udev-eudev"
+   ln -sfn /opt/eudev/sbin/udevd udevd 2>/dev/null
+
+   echo -e "${GREEN}   >>${NC} creatng symlink udevdadm from udevadm-eudev"
+   ln -sfn /opt/eudev/sbin/udevadm udevadm 2>/dev/null
+   
+   echo -e "${GREEN}   >>${NC} creatng symlink poweroff,rebot from halt"
+   ln -sfn halt poweroff 2>/dev/null  
+   ln -sfn halt reboot 2>/dev/null 
+   
+   echo -e "${GREEN}   >>${NC} creatng symlink telinit from init"
+   ln -sfn init telinit 2>/dev/null
+
+ cd $1
+    echo -e "${GREEN}   >>${NC} copying requirements binary from sysvinit"
+    cp -Rp opt/sysvinit/sbin/* sbin 2>/dev/null 
+    
+    sleep 1
+     
+
+}
+
+
+
+#######################
+######  systemd  ######
+#######################
+
+init_systemd()
+{
+   
+
+ cd $1/lib
+   echo -e "${GREEN}   >>${NC} creatng symlink libudev.so(.1) from libudev-systemd"
+   ln -sfn libudev.so.systemd libudev.so 2>/dev/null 
+   ln -sfn libudev.so.systemd libudev.so.1 2>/dev/null 
+
+ cd $1/bin
+   echo -e "${GREEN}   >>${NC} creatng symlink udevadm from udevadm-systemd"
+   ln -sfn udevadm-systemd udevadm 2>/dev/null 
+ 
+ cd $1/sbin
+   echo -e "${GREEN}   >>${NC} removing conflict udevd & udevadm in sbin"
+   rm udevd 2>/dev/null 
+   rm udevadm 2>/dev/null
+   
+   echo -e "${GREEN}   >>${NC} creatng symlink init from /lib/systemd/systemd" 
+   ln -sfn ../lib/systemd/systemd init 2>/dev/null
+
+   echo -e "${GREEN}   >>${NC} creatng symlink halt,poweroff,reboot,runlevel"
+   echo -e "${GREEN}   >>${NC} shutdown,telinit from /bin/systemctl" 
+   ln -sfn ../bin/systemctl halt 2>/dev/null 
+   ln -sfn ../bin/systemctl poweroff 2>/dev/null 
+   ln -sfn ../bin/systemctl reboot 2>/dev/null 
+   ln -sfn ../bin/systemctl runlevel 2>/dev/null
+   ln -sfn ../bin/systemctl shutdown 2>/dev/null
+   ln -sfn ../bin/systemctl telinit 2>/dev/null 
+ 
+   #echo -e "${GREEN}   >>${NC} creatng symlink udevadm from /bin/udevadm-systemd"
+   ln -sfn ../bin/udevadm-systemd udevadm 2>/dev/null
+   
+sleep 1
+
+}
+
+
+
+#########################
+#### end of functiom ####
+#########################
+

@@ -1,0 +1,679 @@
+#!/bin/bash
+
+
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
+
+
+
+. config
+
+
+
+readonly COMMAND="$0"
+readonly SETUP_ARCH="`uname -m`"
+readonly VERSION="1.0"
+
+
+#####################################################
+# SOME COLOURS BIAR COOL
+#####################################################
+cyan='\e[0;36m'
+green='\e[0;34m'
+okegreen='\033[92m'
+lightgreen='\e[1;32m'
+white='\e[1;37m'
+red='\e[1;31m'
+yellow='\e[1;33m'
+BlueF='\e[1;34m'
+
+
+SETUP_INITRD="no"
+SETUP_REMASTERING="no"
+SETUP_SOURCES="no"
+SETUP_KERNEL="no"
+SETUP_PREPARE="no"
+
+
+ISOBURN="no"
+SQUASHFS="no"
+SUDOAPP="no"
+WGETAPP="no"
+GITAPP="no"
+XTERMAPP="no"
+
+
+##################################
+########## INITRD BUILD ##########
+##################################
+
+
+
+LFS_CFG() {
+
+cat > $TGT_LIVE_DISK/boot/lfs.cfg << "EOF"
+
+PROMPT 0
+TIMEOUT 90
+DEFAULT /boot/vesamenu.c32
+MENU BACKGROUND /boot/bootlogo.png
+
+MENU WIDTH 36
+MENU MARGIN 0
+MENU ROWS 8
+MENU HELPMSGROW 14
+MENU TIMEOUTROW 22
+MENU TABMSGROW 24
+MENU CMDLINEROW 24
+MENU HSHIFT 40
+MENU VSHIFT 2
+
+	menu color screen	37;40      #00000000 #00000000 none
+	menu color border	30;44      #00000000 #00000000 none
+	menu color title	1;36;44    #00000000 #00000000 none
+	menu color unsel	37;44      #ff60CA00 #00000000 none
+	menu color hotkey	1;37;44    #ff60CA00 #00000000 none
+	menu color sel		7;37;40    #ffffffff #ff60CA00 none
+	menu color hotsel	1;7;37;40  #ff808080 #ff60CA00 none
+	menu color scrollbar	30;44      #00000000 #00000000 none
+
+	menu color tabmsg	31;40      #aaaaaaaa #00000000 none
+	menu color cmdmark	1;36;40    #ffff0000 #00000000 none
+	menu color cmdline	37;40      #aaaaaaaa #00000000 none
+	menu color pwdborder	30;47      #ffff0000 #00000000 std
+	menu color pwdheader	31;47      #ffff0000 #00000000 std
+	menu color pwdentry	30;47      #ffff0000 #00000000 std
+	menu color timeout_msg	37;40      #aaaaaaaa #00000000 none
+	menu color timeout	1;37;40    #ffaaaaff #00000000 none
+	menu color help		37;40      #aaaaaa00 #00000000 none
+	menu color msg07	37;40      #90ffffff #00000000 std
+
+
+
+LABEL run $LIVEKIT_NAME
+MENU LABEL Run $LIVEKIT_NAME
+KERNEL /boot/vmlinuz
+APPEND initrd=/boot/initrfs.img quiet live 
+
+TEXT HELP
+                                          More about currently selected:
+
+                                          Run kolomonggo linux live systemd
+                                          and you can install later 
+ENDTEXT
+
+
+EOF
+
+
+}
+
+LFS_CFG_INSTALLER() {
+
+cat > $TGT_LIVE_DISK/boot/lfs.cfg << "EOF"
+
+PROMPT 0
+TIMEOUT 90
+DEFAULT /boot/vesamenu.c32
+MENU BACKGROUND /boot/bootlogo.png
+
+MENU WIDTH 36
+MENU MARGIN 0
+MENU ROWS 8
+MENU HELPMSGROW 14
+MENU TIMEOUTROW 22
+MENU TABMSGROW 24
+MENU CMDLINEROW 24
+MENU HSHIFT 40
+MENU VSHIFT 2
+
+	menu color screen	37;40      #00000000 #00000000 none
+	menu color border	30;44      #00000000 #00000000 none
+	menu color title	1;36;44    #00000000 #00000000 none
+	menu color unsel	37;44      #ff60CA00 #00000000 none
+	menu color hotkey	1;37;44    #ff60CA00 #00000000 none
+	menu color sel		7;37;40    #ffffffff #ff60CA00 none
+	menu color hotsel	1;7;37;40  #ff808080 #ff60CA00 none
+	menu color scrollbar	30;44      #00000000 #00000000 none
+
+	menu color tabmsg	31;40      #aaaaaaaa #00000000 none
+	menu color cmdmark	1;36;40    #ffff0000 #00000000 none
+	menu color cmdline	37;40      #aaaaaaaa #00000000 none
+	menu color pwdborder	30;47      #ffff0000 #00000000 std
+	menu color pwdheader	31;47      #ffff0000 #00000000 std
+	menu color pwdentry	30;47      #ffff0000 #00000000 std
+	menu color timeout_msg	37;40      #aaaaaaaa #00000000 none
+	menu color timeout	1;37;40    #ffaaaaff #00000000 none
+	menu color help		37;40      #aaaaaa00 #00000000 none
+	menu color msg07	37;40      #90ffffff #00000000 std
+
+
+
+LABEL run $LIVEKIT_NAME
+MENU LABEL Run $LIVEKIT_NAME
+KERNEL /boot/vmlinuz
+APPEND initrd=/boot/initrfs.img quiet live 
+
+TEXT HELP
+                                          More about currently selected:
+
+                                          Run kolomonggo linux live systemd
+                                          and you can install later 
+ENDTEXT
+
+LABEL run $LIVEKIT_NAME install
+MENU LABEL Run  $LIVEKIT_NAME install
+KERNEL /boot/vmlinuz
+APPEND initrd=/boot/initrfs.img quiet live install
+
+TEXT HELP
+                                          More about currently selected:
+
+                                          Run kolomonggo linux live sysvinit
+                                          and you can install later 
+ENDTEXT
+
+
+EOF
+
+
+}
+
+
+
+
+
+
+
+init_created(){
+
+
+cat > lib/,config << "EOF"
+#!/bin/bash
+# This is a config file for Linux Live Kit build script.
+# mod by pornomo hadi purnomo.shinigami@gmail.com
+
+LIVEKITNAME="$LIVE_KITNAME"
+DISTNAME="$DIST_NAME"
+BEXT="$B_EXT" # extention for squashfs file 
+
+EOF
+
+rm lib/,config
+
+PWDN=$(pwd)
+rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
+mkdir $TGT_TMP_INITRD >/dev/null 2>/dev/nul
+  cd $TGT_TMP_INITRD
+echo "// creating root file system in newinit"
+  mkdir bin boot dev proc sys run var usr sbin opt etc lib >/dev/null 2>/dev/null
+  cd /
+  mkdir -pv $TGT_TMP_INITRD/{bin,boot,etc/{opt,sysconfig},home,lib/firmware,mnt,opt} >/dev/null 2>/dev/null
+  mkdir -pv $TGT_TMP_INITRD/{media/{floppy,cdrom},sbin,srv,var} >/dev/null 2>/dev/null
+  install -dv -m 0750 $TGT_TMP_INITRD/root >/dev/null 2>/dev/null
+  install -dv -m 1777 $TGT_TMP_INITRD/tmp $TGT_TMP_INITRD/var/tmp >/dev/null 2>/dev/null
+  mkdir -vp $TGT_TMP_INITRD/usr/{,local/}{bin,include,lib,sbin,src} >/dev/null 2>/dev/null
+  mkdir -vp $TGT_TMP_INITRD/usr/{bin,include,lib,sbin,src} >/dev/null 2>/dev/null
+  # mkdir -vp $TGT_TMP_INITRD/usr/{,local/}share/{color,dict,doc,info,locale,man} >/dev/null 2>/dev/null
+  # mkdir -v  $TGT_TMP_INITRD/usr/{,local/}share/{misc,terminfo,zoneinfo} >/dev/null 2>/dev/null
+  mkdir -vp  $TGT_TMP_INITRD/usr/libexec >/dev/null 2>/dev/null
+  # mkdir -vp $TGT_TMP_INITRD/usr/{,local/}share/man/man{1..8} >/dev/null 2>/dev/null
+
+# if 
+echo "// detecting OS arch " 
+
+if [ "$(uname -m)" != 'x86_64' ]; then
+        echo "not 64 bit"
+else
+  echo "    -- 64 bit OS "
+   cd $TGT_TMP_INITRD
+   mkdir lib64 >/dev/null 2>/dev/null
+   cp -pR /lib64/ld* $TGT_TMP_INITRD/lib64 >/dev/null 2>/dev/null
+fi 
+
+  mkdir -v $TGT_TMP_INITRD/var/{log,mail,spool}  >/dev/null 2>/dev/null
+  ln -sv /run var/run >/dev/null 2>/dev/null
+  ln -sv /run/lock var/lock >/dev/null 2>/dev/null
+  mkdir -pv $TGT_TMP_INITRD/var/{opt,cache,lib/{color,misc,locate},local} >/dev/null 2>/dev/null
+
+echo "// copying some lib and app from system"
+
+  cp -pR /lib/libreadline* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libhistory* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libncurses* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libdl* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libc* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib64/ld* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libmount* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libblkid* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libuuid* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/librt* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libpthread* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libm* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libz* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/liblzma* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libacl* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libattr* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libsmart* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libext2fs* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libcom_err* $TGT_TMP_INITRD/lib  >/dev/null 2>/dev/null
+  cp -pR /lib/libe2p* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libcap* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libfdisk* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libntfs* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+# add if 
+
+filesystemd="/lib/systemd/systemd"
+if [ ! -f "$filesystemd" ]
+then
+    echo "no Systemd lib"
+else
+
+    mkdir $TGT_TMP_INITRD/lib/systemd
+    cp -pR /lib/systemd/*systemd*.so* $TGT_TMP_INITRD/lib/systemd >/dev/null 2>/dev/null
+    cp -pR /lib/systemd/*systemd*.la* $TGT_TMP_INITRD/lib/systemd >/dev/null 2>/dev/null
+fi
+
+
+
+  cp -pR /lib/libpam* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libkmod* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+  cp -pR /lib/libm* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/libresolv* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/liblzma* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+  cp -pR /lib/ld-* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+  cp -pR /lib/*udev* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+
+  unset VARUDEV
+  VARUDEV="$(pkg-config --variable=prefix  udev)"
+  TGTUDEV="$TGT_TMP_INITRD$VARUDEV"
+    cp -pR $VARUDEV $TGTUDEV >/dev/null 2>/dev/null
+
+  echo "// removing uneeded directory and file  "
+  rm -vrf $TGTUDEV/include  >/dev/null 2>/dev/null
+  rm -vrf $TGTUDEV/share >/dev/null 2>/dev/null
+  rm -vrf $TGT_TMP_INITRD/lib/udev/ >/dev/null 2>/dev/null
+
+
+  cp  /bin/sh $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/bash $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/cat $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/mount $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/echo $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/bin/setsid $TGT_TMP_INITRD/usr/bin/ >/dev/null 2>/dev/null
+  cp  /usr/bin/mksquashfs $TGT_TMP_INITRD/usr/bin/mksquashfs >/dev/null 2>/dev/null
+  cp  /bin/rm $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/  cp $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/mkdir  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/ln  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/modprobe $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/mkswap  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/swapon $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/rmmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/find  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/rmdir $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/mke2fs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/bin/touch  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/chmod  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/bin/ldd $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/ls $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/mv  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/grep  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/umount  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/sbin/chroot  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/pivot_root $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/switch_root  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/kill  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/bin/printf  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/bin/tr  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/bin/cut $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/egrep $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/cfdisk $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
+  cp  /bin/kmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/sbin/mkntfs $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
+  cp  /sbin/mkfs.ext3  $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
+  cp  /sbin/mkfs.ext4  $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
+
+  cp -pR /usr/bin/dialog $TGT_TMP_INITRD/usr/bin/ >/dev/null 2>/dev/null
+  cp -pR /usr/lib/*dialog* $TGT_TMP_INITRD/usr/lib >/dev/null 2>/dev/null
+  cp -pR /bin/lsblk $TGT_TMP_INITRD/bin/lsblk >/dev/null 2>/dev/null
+
+  mkdir /sources  >/dev/null 2>/dev/null
+
+  cd  /sources
+echo "// downloading busybox using wget "
+	xterm -e  wget -c https://busybox.net/downloads/busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
+echo "// extracting busybox "
+	tar -xf busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
+	cd busybox-1.27.2
+
+
+	 xterm -e  	make distclean 
+
+echo "// make a defconfig for busybox "
+	 xterm -e  	make defconfig  
+
+
+echo "// tweaking busybox for bash to ash"
+              ##################################
+                  #CONFIG_BASH_IS_NONE is not set	
+        	  #CONFIG_BASH_IS_ASH=y
+                  #CONFIG_ASH_BASH_COMPAT=y
+                  #CONFIG_HUSH_BASH_COMPAT=y
+
+                  echo "    -- set # CONFIG_BASH_IS_NONE is not set to config "
+                  sed '/CONFIG_BASH_IS_NONE/d' -i .config
+		  echo "# CONFIG_BASH_IS_NONE is not set" >>.config
+
+                  echo "    -- set CONFIG_BASH_IS_ASH=y to config "
+                  sed '/CONFIG_BASH_IS_ASH/d' -i .config
+		  echo "CONFIG_BASH_IS_ASH=y" >>.config
+
+
+
+
+  	     ###################################
+       
+echo "// compiling busybox "        
+
+         xterm -e  make
+  	
+echo "// installing busybox " 
+  	xterm -e  make CONFIG_PREFIX=$TGT_TMP_INITRD  install 
+
+echo "// copying the init script "
+cd $PWDN
+
+
+cp -vpR lib $TGT_TMP_INITRD >/dev/null 2>/dev/null
+cp init $TGT_TMP_INITRD >/dev/null 2>/dev/null
+chmod -v  755 $TGT_TMP_INITRD/lib/bootsplash    >/dev/null 2>/dev/null
+chmod -v  755 $TGT_TMP_INITRD/lib/debuginit  >/dev/null 2>/dev/null 
+chmod -v  755 $TGT_TMP_INITRD/lib/persistandmode   >/dev/null 2>/dev/null 
+chmod -v  755 $TGT_TMP_INITRD/lib/syteminitswitch >/dev/null 2>/dev/null
+chmod -v  755 $TGT_TMP_INITRD/lib/cleanup    >/dev/null 2>/dev/null   
+chmod -v  755 $TGT_TMP_INITRD/lib/insinit  >/dev/null 2>/dev/null    
+chmod -v  755 $TGT_TMP_INITRD/lib/livekitlib   >/dev/null 2>/dev/null        
+chmod -v  755 $TGT_TMP_INITRD/lib/run >/dev/null 2>/dev/null
+cd /tmp
+
+echo "// creating inirrd.img-$(uname -r).img to /boot dir "
+pushd newinit   >/dev/null 2>/dev/null
+find . | cpio -o -H newc -F ../initrd   >/dev/null 2>/dev/null
+popd  >/dev/null 2>/dev/null
+gzip -9 initrd  >/dev/null 2>/dev/null
+mv -vf initrd.gz /boot/initrd.img-$(uname -r) >/dev/null 2>/dev/null
+echo "// removing temp dir "
+rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
+echo "// -- DONE --"
+exit 0
+}
+
+##################################
+########## end of initrd #########
+##################################
+
+
+########################################
+#########   LIVECD BUILDER /  ##########
+######### remastering funtion ##########
+########################################
+
+
+remaster_() {
+
+echo "remastering prosses"
+#rm -rf  $TGT_LIVE_DISK >/dev/null 2>/dev/null
+#mkdir $TGT_LIVE_DISK
+
+}
+
+
+
+
+#############################################
+######### end of  LIVECD BUILDER / ##########
+#########   remastering funtion    ##########
+#############################################
+
+
+
+print_help() {
+        echo -e $white
+        echo ""
+        echo " created by purnomo hadi fb:purnomo.shinigami "
+        echo " purnomo.shinigami@gmail.com , under GPLv2 or later license "
+        echo " this tools only build for remastering LFS based OS"
+        echo " with AUFS and squashfs tools , initramfs based on linux live kit "
+        echo " dependencies libisoburn,squashfs-tools,sudo,wget,git clone,xterm"  
+        echo " you must compile a kernel with aufs patch visit"
+        echo " https://github.com/sfjro/aufs4-linux/blob/aufs4.x-rcN/Documentation/admin-guide/README.rst"
+        echo ""
+        echo -e $white"usage: `basename $COMMAND` [options]"
+	echo "options"
+        echo ""
+        echo " --build-initrd       build initramfs" 
+	echo " --remastering        remastering running LFS based distro"
+	echo ""
+        echo " -h,   --help      Show the help"
+	echo " -v,   --version   Show the version"
+}
+
+
+parse_options() {
+	if [ $# -lt 1 ]; then
+		print_help
+	else
+		while [ "$1" ]; do
+			case "${1}" in
+				--build-initrd)
+					SETUP_INITRD="yes"
+                                        ;;
+				--remastering)
+					SETUP_REMASTERING="yes"
+                                        ;;
+				--grabing-sources)
+					SETUP_SOURCES="yes"
+					;;
+				--build-kernel)
+					SETUP_KERNEL="yes"
+					;;
+				--prepare)
+					SETUP_PREPARE="yes"
+					;;
+				-v|--version)
+					echo "`basename ${COMMAND}` $VERSION"
+					exit 0
+					;;
+				--cal)
+					echo ""
+					;;
+				-h|--help)
+					print_help
+					exit 0
+					;;
+				*)
+					echo "`basename ${COMMAND}`: invalid option $1"
+					exit 1
+					;;
+			esac
+			shift
+		done
+	fi
+}
+
+
+main () {
+	parse_options "$@"
+	ALL_LIST=$@
+
+	
+        if [ "$SETUP_INITRD" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--build-initrd" ]; then
+                          init_created
+                 else 
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --build-initrd  with another Option"
+                        print_help
+                 fi
+        elif [ "$SETUP_REMASTERING" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--remastering" ]; then
+                          remaster_
+                 else 
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --remastering  with another Option"
+                        print_help
+                 fi
+                                  
+               
+      
+
+       
+
+  	 
+	fi
+}
+
+
+
+
+
+
+ceck_depend() {
+
+  echo "checking dependencies ..."
+  echo ""
+
+ 
+  if ! [ -x "$(command -v xterm)" ]; then
+           echo "xterm "
+           XTERMAPP="no" 
+  else 
+           echo "checking xterm    yes "
+           XTERMAPP="yes"
+  fi
+  sleep 1 
+
+  if ! [ -x "$(command -v mksquashfs)" ]; then
+  	SQUASHFS="no"  
+        echo "squashfs-tools "
+  else 
+  	SQUASHFS="yes"
+	echo "checking squashfs-tools    yes "
+  fi
+  sleep 1
+   
+  if ! [ -x "$(command -v git)" ]; then
+  	GITAPP="no"
+         echo "git "
+  else 
+  	GITAPP="yes"
+        echo "checking git    yes "
+  fi
+  sleep 1 
+
+  if ! [ -x "$(command -v sudo)" ]; then
+  	SUDOAPP="no"
+         echo "sudo "
+  else 
+ 	SUDOAPP="yes"
+        echo "checking sudo    yes "
+  fi
+  sleep 1
+  if ! [ -x "$(command -v wget)" ]; then
+  	WGETAPP="no"
+         echo "wget  "
+  else 
+  	WGETAPP="yes"
+        echo "checking xterm    yes "
+  fi
+
+  sleep 1
+  if ! [ -x "$(command -v xorrisofs)" ]; then
+  	ISOBURN="no"
+         echo "xorrisofs "
+  else 
+  	ISOBURN="yes"
+         echo "checking xorrisofs    yes "
+  
+  fi
+ sleep 1
+  if ! [ -x "$(command -v dialog)" ]; then
+  	DIALOG="no"
+        INSTALLER_ENABLED="no"
+         echo " "
+         echo "optional dependencies "
+         echo "dialog "
+         echo "installer not enabled "
+  else 
+  	DIALOG="yes"
+         echo "checking dialog    yes "
+  
+  fi
+ sleep 1
+
+}
+
+
+
+err_depend() {
+echo ""
+echo "unmeet dependencies  , plese compile and instal it "
+exit 1
+}
+
+
+
+
+
+#####################################
+########## end of function ##########
+#####################################
+
+#################################################################
+####################### main line program #######################
+#################################################################
+
+ceck_depend
+
+
+
+ if [ "$ISOBURN" == "no" ]; then
+ 	err_depend
+ elif [ "$SQUASHFS" == "no" ]; then
+ 	err_depend
+ elif [ "$SUDOAPP" == "no" ]; then
+ 	err_depend
+ elif [ "$WGETAPP" == "no" ]; then
+ 	err_depend
+ elif [ "$GITAPP" == "no" ]; then
+ 	err_depend
+ elif [ "$XTERMAPP" == "no" ]; then
+ 	err_depend
+ else 
+     echo "// all dependencies are meet " 
+     echo "// running tools "
+     echo "" 
+     sleep 2 
+     clear
+    
+ fi
+
+
+ main "$@"
+
+
+
+
+
+
+
+

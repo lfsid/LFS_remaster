@@ -1,0 +1,72 @@
+#!/bin/sh
+# Functions library :: for persistant changes
+# Author: : Tomas M <http://www.linux-live.org/>
+# modif by purnomo hadi kolomonggolinux.blogspot.com , http://dracos-linux.org/
+
+
+. /lib/debuginit
+. /lib/insinit
+. /lib/livekitlib
+. /lib/.config
+
+. /lib/bootsplash 
+. /lib/syteminitswitch
+
+
+
+
+# Activate persistent changes
+# $1 = data directory
+# $2 = target changes directory
+#
+persistent_changes()
+{
+   debug_log "persistent_changes" "$*"
+
+   local CHANGES T1 T2
+
+   CHANGES="$1/$(basename "$2")"
+   T1="$CHANGES/.empty"
+   T2="$T1"2
+
+   # Setup the directory anyway, it will be used in all cases
+   mkdir -p "$2"
+
+   # If persistent changes are not requested, end here
+   if grep -vq perch /proc/cmdline; then
+      return
+   fi
+
+   # check if changes directory exists and is writable
+   touch "$T1" 2>/dev/null && rm -f "$T1" 2>/dev/null
+
+   # if not, simply return back
+   if [ $? -ne 0 ]; then
+      echo "* Persistent changes not writable or not used"
+      return
+   fi
+
+   echo_green_star
+   echo "Testing persistent changes for posix compatibility"
+   touch "$T1" && ln -sf "$T1" "$T2" 2>/dev/null && \
+   chmod +x "$T1" 2>/dev/null && test -x "$T1" && \
+   chmod -x "$T1" 2>/dev/null && test ! -x "$T1" && \
+   rm "$T1" "$T2" 2>/dev/null
+
+   if [ $? -ne 0 ]; then
+      echo "* Activating dynamic sized storage for persistent changes"
+      rm "$T1" "$T2" 2>/dev/null
+
+      mount.dynfilefs "$CHANGES/changes.dat" 4000 "$2"
+      if [ "$(device_bestfs "$2/loop.fs" | tr -d " ")" = "-t" ]; then
+         mke2fs -F "$2/loop.fs" >/dev/null
+      fi
+      mount -o loop,sync "$2/loop.fs" "$2"
+      rmdir "$2/lost+found" 2>/dev/null
+   else
+      echo "* Activating native persistent changes"
+      mount --bind "$CHANGES" "$2"
+   fi
+   
+
+}

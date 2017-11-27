@@ -1,0 +1,12 @@
+#!/bin/sh
+# installation tools 
+# created by purnomo hadi . purnomo.shinigami@gmail.com 
+#
+# mount squashfile , mount & find target drive & partition
+# formating target partition 
+# mounting target partition 
+# copying root squashfile to target partition
+# chrooting and run grub intall and generate  menu
+
+
+echo "welcome" 

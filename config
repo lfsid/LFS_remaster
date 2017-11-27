@@ -1,0 +1,37 @@
+#!/bin/bash
+# This is a config file for LFSKIT
+
+#####################
+##### EDIT HERE #####
+#####################
+
+LIVEKIT_NAME="kolomonggo" # live kit name look like name in $livedisk/$LIVEKITNAME
+DIST_NAME="kolomonggo-linux"
+
+# Bundle extension, for example 'sb' for .sb extension
+
+B_EXT=kolomonggo # extention for squashfs file 
+
+
+
+
+TGT_TMP_INITRD=/tmp/newinit
+TGT_LIVE_DISK=/tmp/live/$(uname -m)
+TGT_LIVE_DISK_FILE=/LFS.iso
+TGT_SQUASHFS=/tmp/squash
+TGT_SQUASHFS_FILE=/tmp/core.$BEXT
+SRC_ISO=/baseiso/$(uname -m)
+
+
+INSTALLER_ENABLED="no"
+COMPILE_NEWKERNEL="no"
+VERSION_KERNEL=""
+
+
+
+
+
+
+
+
+

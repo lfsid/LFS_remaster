@@ -1,0 +1,25 @@
+#!/bin/sh
+
+. /lib/debuginit
+. /lib/insinit
+. /lib/livekitlib
+. /lib/.config
+. /lib/persistandmode
+. /lib/bootsplash 
+. /lib/syteminitswitch
+. /etc/rc.d/init.d/functions
+
+
+
+
+
+MEMORY=/kolomonggo
+CHANGES=$MEMORY/changes
+UNION=$MEMORY/union
+DATAMNT=$MEMORY/data
+BUNDLES=$MEMORY/bundles
+
+
+if grep -q live  /proc/cmdline; then
+change_root "$UNION"
+fi
