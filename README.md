@@ -1,4 +1,8 @@
 # LFS_remaster
+
+not complete yet
+
+
 remastering tools for lfs based os 
 
  created by purnomo hadi fb:purnomo.shinigami 
