@@ -43,11 +43,12 @@ SUDOAPP="no"
 WGETAPP="no"
 GITAPP="no"
 XTERMAPP="no"
+AUFS_MODULE="no"
 
 
-##################################
-########## INITRD BUILD ##########
-##################################
+######################################################################################################################################
+########## INITRD BUILD ##############################################################################################################
+######################################################################################################################################
 
 
 
@@ -389,7 +390,7 @@ echo "// installing busybox "
 
 echo "// copying the init script "
 cd $PWDN
-
+ 
 
 cp -vpR lib $TGT_TMP_INITRD >/dev/null 2>/dev/null
 cp init $TGT_TMP_INITRD >/dev/null 2>/dev/null
@@ -401,6 +402,17 @@ chmod -v  755 $TGT_TMP_INITRD/lib/cleanup    >/dev/null 2>/dev/null
 chmod -v  755 $TGT_TMP_INITRD/lib/insinit  >/dev/null 2>/dev/null    
 chmod -v  755 $TGT_TMP_INITRD/lib/livekitlib   >/dev/null 2>/dev/null        
 chmod -v  755 $TGT_TMP_INITRD/lib/run >/dev/null 2>/dev/null
+
+# installer detect dialog installed or no 
+if [ "$INSTALLER_ENABLED" == "yes" ]; then
+      if [ "$DIALOG" == "yes" ]; then
+            echo "// installing installer "
+ 	    cp installer/installer $TGT_TMP_INITRD/bin
+            chmod -v  755 $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
+
+      fi
+fi
+
 cd /tmp
 
 echo "// creating inirrd.img-$(uname -r).img to /boot dir "
@@ -415,45 +427,86 @@ echo "// -- DONE --"
 exit 0
 }
 
-##################################
-########## end of initrd #########
-##################################
+######################################################################################################################################
+########## end of initrd #############################################################################################################
+######################################################################################################################################
 
 
-########################################
-#########   LIVECD BUILDER /  ##########
-######### remastering funtion ##########
-########################################
+############################################################################################################################################
+#########   LIVECD BUILDER /  ##############################################################################################################
+######### remastering funtion ##############################################################################################################
+############################################################################################################################################
 
 
 remaster_() {
+clear 
+echo "// REMASTERING process "
+echo ""
+echo "  --- CAUTION ! --- "
+echo ""
+echo " before continue please backup or remove "
+echo " private file and folder in your root or /home/*"
+echo " clean your browser cache, pasword, etc"
+echo " Example: "
+echo " .mozilla, .cache, .ssh, file in Download folder, bash_history"
+echo " .thumbnails, etc. in your root and /home/user dir ,so not to get"
+echo " carried into remastering"
+echo ""
 
-echo "remastering prosses"
-#rm -rf  $TGT_LIVE_DISK >/dev/null 2>/dev/null
-#mkdir $TGT_LIVE_DISK
+read -rsp $'if done Press any key to continue...\n' -n1 key
+
+
+rm -rf  $TGT_LIVE_DISK >/dev/null 2>/dev/null
+rm -rf $TGT_SQUASHFS >/dev/null 2>/dev/null
+
+mkdir -pv $TGT_LIVE_DISK $TGT_SQUASHFS 
+cp -vpR $SRC_ISO $TGT_LIVE_DISK
+cp  --preserve -R  /{bin,boot,etc,home,lib,sbin,srv,usr,var,opt,lib64} $TGT_SQUASHFS
+mkdir -vp $TGT_SQUASHFS/root
+mkdir -vp $TGT_SQUASHFS/root/Desktop
+mkdir -vp $TGT_SQUASHFS/root/Downloads
+mkdir -vp $TGT_SQUASHFS/mnt
+mkdir -vp $TGT_SQUASHFS/tmp
+mkdir -vp $TGT_SQUASHFS/dev
+mkdir -vp $TGT_SQUASHFS/proc
+mkdir -vp $TGT_SQUASHFS/sys
+mkdir -vp $TGT_SQUASHFS/run
+
+
+
+cp -v /root/.bash* $TGT_SQUASHFS/root
+cp -vpR /root/.config $TGT_SQUASHFS/root
+cp -v /root/.vim* $TGT_SQUASHFS/root
+cp -v /root/.top* $TGT_SQUASHFS/root
+
+
 
 }
 
 
 
 
-#############################################
-######### end of  LIVECD BUILDER / ##########
-#########   remastering funtion    ##########
-#############################################
+#################################################################################################################################################
+######### end of  LIVECD BUILDER / ##############################################################################################################
+#########   remastering funtion    ##############################################################################################################
+#################################################################################################################################################
 
 
 
 print_help() {
         echo -e $white
-        echo ""
-        echo " created by purnomo hadi fb:purnomo.shinigami "
-        echo " purnomo.shinigami@gmail.com , under GPLv2 or later license "
-        echo " this tools only build for remastering LFS based OS"
-        echo " with AUFS and squashfs tools , initramfs based on linux live kit "
-        echo " dependencies libisoburn,squashfs-tools,sudo,wget,git clone,xterm"  
-        echo " you must compile a kernel with aufs patch visit"
-        echo " https://github.com/sfjro/aufs4-linux/blob/aufs4.x-rcN/Documentation/admin-guide/README.rst"
+        
+       
+        echo " 01      110101   01011         10  00  00  101100    "
+        echo " 10      01      11             01 10   01    01    "
+        echo " 00      010000   10101   010   0101    10    10 "
+        echo " 11      00           01        10 00   00    11 "
+        echo " 011101  10       01001         11  10  10    01 "
+        echo""
+        echo "remastering tools for lfs based os"
+        echo "created by purnomo hadi fb:purnomo.shinigami purnomo.shinigami@gmail.com ,"
+        echo "under GPLv2 or later license this tools only build for remastering "
+        echo "LFS based OS with AUFS and squashfs tools , initramfs based on linux live kit"
         echo ""
         echo -e $white"usage: `basename $COMMAND` [options]"
 	echo "options"
@@ -544,8 +597,9 @@ main () {
 
 
 
-
-
+#################################
+##### checking dependwnceis #####
+#################################
 
 ceck_depend() {
 
@@ -554,7 +608,7 @@ ceck_depend() {
 
  
   if ! [ -x "$(command -v xterm)" ]; then
-           echo "xterm "
+           echo "checking xterm     no "
            XTERMAPP="no" 
   else 
            echo "checking xterm    yes "
@@ -564,7 +618,7 @@ ceck_depend() {
 
   if ! [ -x "$(command -v mksquashfs)" ]; then
   	SQUASHFS="no"  
-        echo "squashfs-tools "
+        echo "checking squashfs-tools    no"
   else 
   	SQUASHFS="yes"
 	echo "checking squashfs-tools    yes "
@@ -573,7 +627,7 @@ ceck_depend() {
    
   if ! [ -x "$(command -v git)" ]; then
   	GITAPP="no"
-         echo "git "
+         echo "checking git     no"
   else 
   	GITAPP="yes"
         echo "checking git    yes "
@@ -582,7 +636,7 @@ ceck_depend() {
 
   if ! [ -x "$(command -v sudo)" ]; then
   	SUDOAPP="no"
-         echo "sudo "
+         echo "checking sudo     no"
   else 
  	SUDOAPP="yes"
         echo "checking sudo    yes "
@@ -590,50 +644,164 @@ ceck_depend() {
   sleep 1
   if ! [ -x "$(command -v wget)" ]; then
   	WGETAPP="no"
-         echo "wget  "
+         echo "checking wget     no"
   else 
   	WGETAPP="yes"
-        echo "checking xterm    yes "
+        echo "checking wget    yes "
   fi
 
   sleep 1
   if ! [ -x "$(command -v xorrisofs)" ]; then
   	ISOBURN="no"
-         echo "xorrisofs "
+         echo "checking xorrisofs     no"
   else 
   	ISOBURN="yes"
-         echo "checking xorrisofs    yes "
+         echo "checking xorrisofs     yes "
   
   fi
  sleep 1
-  if ! [ -x "$(command -v dialog)" ]; then
-  	DIALOG="no"
-        INSTALLER_ENABLED="no"
-         echo " "
-         echo "optional dependencies "
-         echo "dialog "
-         echo "installer not enabled "
-  else 
+
+if [ "$INSTALLER_ENABLED" == "yes" ]; then
+     echo "installer enabled    yes"
+     
+    if ! [ -x "$(command -v dialog)" ]; then
+         DIALOG="no"
+         INSTALLER_ENABLED="no"
+         echo "checking dialog    no "
+        NOCKI_INS="no"
+        
+    else 
   	DIALOG="yes"
          echo "checking dialog    yes "
-  
-  fi
+         
+         NOCKI_INS="yes"
+    fi
+fi
  sleep 1
+if grep -qw aufs /proc/filesystems; then
+  echo "checking AUFS      yes "
+  AUFS_MODULE="yes"
+else 
+  echo "checking AUFS      no "
+  AUFS_MODULE="no"
+fi
+
+
+sleep 1 
+
 
 }
 
 
 
 err_depend() {
+summary_
 echo ""
-echo "unmeet dependencies  , plese compile and instal it "
+echo "unmeet dependencies  , plese compile and instal- it "
 exit 1
 }
 
 
 
+summary_(){ 
 
 
+echo ""
+echo "   --- SUMMARY ---"
+echo ""
+echo "- Required dependencies "
+echo ""
+
+
+if [ "$ISOBURN" == "yes" ]; then
+	echo "   Xorrisofs           installed"
+else
+	echo "   Xorrisofs           not-installed"
+fi
+
+
+if [ "$SQUASHFS" == "yes" ]; then
+	echo "   squashfs-tools      installed"
+else
+	echo "   squashfs-tools      not-installed"
+fi
+
+if [ "$SUDOAPP" == "yes" ]; then
+	echo "   sudo                installed"
+else
+	echo "   sudo                not-installed"
+fi
+
+if [ "$WGETAPP" == "yes" ]; then
+	echo "   wget                installed"
+else
+	echo "   wget                not-installed"
+fi
+
+if [ "$GITAPP" == "yes" ]; then
+	echo "   git                 installed"
+else
+	echo "   git                 not-installed"
+fi
+
+if [ "$XTERMAPP" == "yes" ]; then
+	echo "   Xterm               installed"
+else
+	echo "   Xterm               not-installed"
+fi
+echo ""
+echo "- optional dependencies for initramfs but Required  for build live disk"
+
+echo ""
+
+if [ "$AUFS_MODULE" == "yes" ]; then
+	echo "   kernel aufs module      yes"
+else
+	echo "   kernel aufs module      yes"
+fi
+
+
+
+
+echo ""
+echo "- optional dependencies for installer inside in initramfs"
+echo "  "
+
+
+if [ "$DIALOG" == "yes" ]; then
+	echo "   dialog           installed"
+else
+	echo "   dialog           not-installed"
+fi
+
+echo ""
+echo "- MISC "
+echo " "
+
+
+if [ "$INSTALLER_ENABLED" == "yes" ]; then
+	echo "   installer      yes"
+else
+	echo "   installer      no"
+fi
+echo ""
+
+if [ "$NOCKI_INS" == "no" ]; then
+	
+        echo "  installer enabled but dialog not detected "
+        echo "  installer not enabled "
+
+ 
+fi
+
+
+
+
+
+
+echo " "
+
+}
 #####################################
 ########## end of function ##########
 #####################################
@@ -659,13 +827,17 @@ ceck_depend
  elif [ "$XTERMAPP" == "no" ]; then
  	err_depend
  else 
-     echo "// all dependencies are meet " 
-     echo "// running tools "
-     echo "" 
-     sleep 2 
-     clear
-    
- fi
+     summary_
+
+     echo "// all dependencies are meet - running tools "
+  
+     sleep 1
+  #   
+
+    read -rsp $'Press any key to continue...\n' -n1 key
+
+clear
+fi
 
 
  main "$@"

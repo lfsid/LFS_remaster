@@ -20,10 +20,10 @@ TGT_LIVE_DISK=/tmp/live/$(uname -m)
 TGT_LIVE_DISK_FILE=/LFS.iso
 TGT_SQUASHFS=/tmp/squash
 TGT_SQUASHFS_FILE=/tmp/core.$BEXT
-SRC_ISO=/baseiso/$(uname -m)
+SRC_ISO=baseiso/$(uname -m)
 
 
-INSTALLER_ENABLED="no"
+INSTALLER_ENABLED="yes"
 COMPILE_NEWKERNEL="no"
 VERSION_KERNEL=""
 
