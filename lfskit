@@ -315,13 +315,13 @@ fi
   cp  /bin/  cp $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/mkdir  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/ln  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/modprobe $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/mkswap  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/swapon $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/rmmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+ cp  /sbin/modprobe $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/mkswap  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/swapon $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/rmmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/find  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/rmdir $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/mke2fs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+ cp  /sbin/mke2fs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/touch  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/chmod  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/ldd $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
@@ -329,19 +329,19 @@ fi
   cp  /bin/mv  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/grep  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/umount  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /usr/bin/chroot  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/pivot_root $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/switch_root  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/sbin/chroot  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/pivot_root $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/switch_root  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/kill  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/printf  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/tr  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/cut $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/egrep $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/cfdisk $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/cfdisk $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/kmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /usr/bin/mkntfs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/mkfs.ext3  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /bin/mkfs.ext4  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/sbin/mkntfs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/mkfs.ext3  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /sbin/mkfs.ext4  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
 
   cp -pR /usr/bin/dialog $TGT_TMP_INITRD/usr/bin/ >/dev/null 2>/dev/null
   cp -pR /usr/lib/*dialog* $TGT_TMP_INITRD/usr/lib >/dev/null 2>/dev/null
