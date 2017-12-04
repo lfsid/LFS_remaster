@@ -209,10 +209,10 @@ rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
 mkdir $TGT_TMP_INITRD >/dev/null 2>/dev/nul
   cd $TGT_TMP_INITRD
 echo "// creating root file system in newinit"
-  mkdir bin boot dev proc sys run var usr sbin opt etc lib >/dev/null 2>/dev/null
+  mkdir bin boot dev proc sys run var usr opt etc lib >/dev/null 2>/dev/null
   cd /
   mkdir -pv $TGT_TMP_INITRD/{bin,boot,etc/{opt,sysconfig},home,lib/firmware,mnt,opt} >/dev/null 2>/dev/null
-  mkdir -pv $TGT_TMP_INITRD/{media/{floppy,cdrom},sbin,srv,var} >/dev/null 2>/dev/null
+  mkdir -pv $TGT_TMP_INITRD/{media/{floppy,cdrom},srv,var} >/dev/null 2>/dev/null
   install -dv -m 0750 $TGT_TMP_INITRD/root >/dev/null 2>/dev/null
   install -dv -m 1777 $TGT_TMP_INITRD/tmp $TGT_TMP_INITRD/var/tmp >/dev/null 2>/dev/null
   mkdir -vp $TGT_TMP_INITRD/usr/{,local/}{bin,include,lib,sbin,src} >/dev/null 2>/dev/null
@@ -222,6 +222,8 @@ echo "// creating root file system in newinit"
   mkdir -vp  $TGT_TMP_INITRD/usr/libexec >/dev/null 2>/dev/null
   # mkdir -vp $TGT_TMP_INITRD/usr/{,local/}share/man/man{1..8} >/dev/null 2>/dev/null
 
+cd $TGT_TMP_INITRD
+ln -svnf bin sbin
 # if 
 echo "// detecting OS arch " 
 
@@ -302,7 +304,7 @@ fi
   rm -vrf $TGT_TMP_INITRD/lib/udev/ >/dev/null 2>/dev/null
 
 
-  cp  /bin/sh $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+ cp  /bin/sh $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/bash $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/cat $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/mount $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
@@ -313,13 +315,13 @@ fi
   cp  /bin/  cp $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/mkdir  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/ln  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/modprobe $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/mkswap  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/swapon $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/rmmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/modprobe $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/mkswap  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/swapon $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/rmmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/find  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/rmdir $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/mke2fs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/mke2fs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/touch  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/chmod  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/ldd $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
@@ -327,19 +329,19 @@ fi
   cp  /bin/mv  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/grep  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/umount  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /usr/sbin/chroot  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/pivot_root $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/switch_root  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /usr/bin/chroot  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/pivot_root $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/switch_root  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/kill  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/printf  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/tr  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /usr/bin/cut $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/egrep $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /sbin/cfdisk $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
+  cp  /bin/cfdisk $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp  /bin/kmod $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-  cp  /usr/sbin/mkntfs $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
-  cp  /sbin/mkfs.ext3  $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
-  cp  /sbin/mkfs.ext4  $TGT_TMP_INITRD/sbin >/dev/null 2>/dev/null
+  cp  /usr/bin/mkntfs $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/mkfs.ext3  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp  /bin/mkfs.ext4  $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
 
   cp -pR /usr/bin/dialog $TGT_TMP_INITRD/usr/bin/ >/dev/null 2>/dev/null
   cp -pR /usr/lib/*dialog* $TGT_TMP_INITRD/usr/lib >/dev/null 2>/dev/null
@@ -348,52 +350,67 @@ fi
   mkdir /sources  >/dev/null 2>/dev/null
 
   cd  /sources
-echo "// downloading busybox using wget "
-	xterm -e  wget -c https://busybox.net/downloads/busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
-echo "// extracting busybox "
-	tar -xf busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
-	cd busybox-1.27.2
+#echo "// downloading busybox using wget "
+#	xterm -e  wget -c https://busybox.net/downloads/busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
+#echo "// extracting busybox "
+#	tar -xf busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
+#	cd busybox-1.27.2
 
 
-	 xterm -e  	make distclean 
+#	 xterm -e  	make distclean 
 
-echo "// make a defconfig for busybox "
-	 xterm -e  	make defconfig  
+#echo "// make a defconfig for busybox "
+#	 xterm -e  	make defconfig  
 
 
-echo "// tweaking busybox for bash to ash"
-              ##################################
-                  #CONFIG_BASH_IS_NONE is not set	
-        	  #CONFIG_BASH_IS_ASH=y
-                  #CONFIG_ASH_BASH_COMPAT=y
-                  #CONFIG_HUSH_BASH_COMPAT=y
+#echo "// tweaking busybox for bash to ash"
+#              ##################################
+#                  #CONFIG_BASH_IS_NONE is not set	
+#        	  #CONFIG_BASH_IS_ASH=y
+#                  #CONFIG_ASH_BASH_COMPAT=y
+#                  #CONFIG_HUSH_BASH_COMPAT=y
 
-                  echo "    -- set # CONFIG_BASH_IS_NONE is not set to config "
-                  sed '/CONFIG_BASH_IS_NONE/d' -i .config
-		  echo "# CONFIG_BASH_IS_NONE is not set" >>.config
 
-                  echo "    -- set CONFIG_BASH_IS_ASH=y to config "
-                  sed '/CONFIG_BASH_IS_ASH/d' -i .config
-		  echo "CONFIG_BASH_IS_ASH=y" >>.config
-
+#                  echo "    -- set # CONFIG_BASH_IS_NONE is not set to config "
+#                  sed '/CONFIG_BASH_IS_NONE/d' -i .config
+#		  echo "# CONFIG_BASH_IS_NONE is not set" >>.config
+#
+ #                 echo "    -- set CONFIG_BASH_IS_ASH=y to config "
+ #                 sed '/CONFIG_BASH_IS_ASH/d' -i .config
+#		  echo "CONFIG_BASH_IS_ASH=y" >>.config
+#
 
 
 
   	     ###################################
        
-echo "// compiling busybox "        
+#echo "// compiling busybox "        
 
-         xterm -e  make
+ #        xterm -e  make
   	
-echo "// installing busybox " 
-  	xterm -e  make CONFIG_PREFIX=$TGT_TMP_INITRD  install 
+#echo "// installing busybox " 
+ # 	xterm -e  make CONFIG_PREFIX=$TGT_TMP_INITRD  install 
+
+
+cd $PWDN
+
+echo "// installing busybox $(uname -m)"
+if [ "$(uname -m)" != 'x86_64' ]; then
+      cp -vpR   busybox/x86_64/bin $TGT_TMP_INITRD >/dev/null 2>/dev/null
+else
+  
+   cp -vpR   busybox/x86/bin $TGT_TMP_INITRD >/dev/null 2>/dev/null
+fi 
+
+
+
 
 echo "// copying the init script "
 cd $PWDN
  
 
 cp -vpR lib $TGT_TMP_INITRD >/dev/null 2>/dev/null
-#cp init $TGT_TMP_INITRD >/dev/null 2>/dev/null
+cp init $TGT_TMP_INITRD >/dev/null 2>/dev/null
   
 # ________________________________________________________________________________________
 # ________________________________________________________________________________________
@@ -404,200 +421,6 @@ cp -vpR lib $TGT_TMP_INITRD >/dev/null 2>/dev/null
 
 
 
-
-cat > $TGT_TMP_INITRD/init << "EOF"
-
-
-#!/bin/sh
-# Initial script for kolomonggo-linux
-# compare between linux live script & kolomonggo-init
-# Author of linux live kit : Tomas M <http://www.linux-live.org/>
-# Author of kolomonggo init: purnomo hadi <purnomo.shinigami@gmail.com>
-# initswitch beetwen systemd and sysvinit only for kolomonggo linux system hyrarki 
-
-export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
-
-
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-. /lib/debuginit
-. /lib/insinit
-. /lib/livekitlib
-. /lib/.config
-. /lib/persistandmode
-. /lib/syteminitswitch
-
-
-
-
-transfer_initramfs
-
-
-
-MEMORY=$LIVEKITNAME
-CHANGES=$MEMORY/changes
-UNION=$MEMORY/union
-DATAMNT=$MEMORY/data
-BUNDLES=$MEMORY/bundles
-
-
-
-
-
-############# end of all fuction #############
-
-
-
-
-# mount virtual filesystems like proc etc
-init_proc_sysfs
-
-debug_start
-init_devs
-
-init_aufs
-#init_zram
-
-if grep -q clean  /proc/cmdline; then
-  clear
-fi
-
-
-
-
-######## run init for live $DISTNAME ###########
-
-
-
-
-if grep -q live  /proc/cmdline; then
-
-header "//$DISTNAME Live Kit init start"
-
-
-
-  # find data dir with filesystem bundles
-  DATA="$(find_data 60 "$DATAMNT")"
-                                                                                                                                                      debug_shell
-  # setup persistent changes, if possible
-  persistent_changes "$DATA" "$CHANGES"
-                                                                                                                                                      debug_shell
-  # copy to RAM if needed
-  DATA="$(copy_to_ram "$DATA" "$CHANGES")"
-                                                                                                                                                      debug_shell
-  # init aufs union
-  init_union "$CHANGES" "$UNION"
-                                                                                                                                                      debug_shell
-  # add data to union
-  union_append_bundles "$DATA" "$BUNDLES" "$UNION"
-                                                                                                                                                      debug_shell
-  # rootcopy
-  copy_rootcopy_content "$DATA" "$UNION"
-
-  # create empty fstab
-  fstab_create "$UNION"
-  
-  installer_ "$UNION"
-         
-
-# __________________________________________________
-                                                 
-# only work for kolomonggo linux hirarky         
-# NOT NEEDED FOR OTHER LFS BASED DISTRO 
-                                                                                                                                      debug_shell
- # if grep -q initsysvinit /proc/cmdline; then
- #    echo_green_star
- #    echo "setting up sysvinit for default init"
- #   init_sysvinit "$UNION"
-
- # elif grep -q initsystemd /proc/cmdline; then
- #    echo_green_star
- #    echo "setting up systemd for default init"
- #    init_systemd "$UNION"
- # else
- #    #echo_green_star
- #    #echo ""
- # fi
-# __________________________________________________
-
-	if grep -q install  /proc/cmdline; then
-		
-		header "// running inatallation tool via initramfs "
-                /usr/bin/install
-	else
-		header "// Live Kit done, starting $DISTNAME"
-
- 	  	change_root "$UNION"
-        fi
-
-
-else
-
-########################################################
-######## end run init for live $DISTNAME ########
-########################################################
-
-
-
-
-
-
-
-
-
-#######################################################################
-######## run init for $DISTNAME has already to installed ########
-#######################################################################
-header "//$DISTNAME init start"
-
-# only work for kolomonggo linux hirarky
-# OTHER LFS BASED DISTRO 
-
-
-init_function
-do_mount_root
-
-# __________________________________________________
-                                                 
-# only work for kolomonggo linux hirarky         
-# NOT NEEDED FOR OTHER LFS BASED DISTRO 
-
-#  if grep -q initsysvinit /proc/cmdline; then
-#     echo_green_star
-#     echo "setting up sysvinit for default init"
-#     init_sysvinit "/.root"
-#
-#  elif grep -q initsystemd /proc/cmdline; then
-#     echo_green_star
-#     echo "setting up systemd for default init"
-#     init_systemd "/.root"
-#  else
-#     echo_green_star
-#     echo ""
-#  fi
-
-# __________________________________________________
-
-
-header "//$DISTNAME init done, starting $DISTNAME"
-exec switch_root /.root "$init" "$@"
-
-fi
-#######################################################################
-######## end init for $DISTNAME has already to installed ########
-#######################################################################
-
-header "!!ERROR occured, you shouldn't be here.!!"
-/bin/sh
-
-
-
-
-
-
-EOF
 
 
 ################# end of init file ##################### 
@@ -612,7 +435,7 @@ chmod -v  755 $TGT_TMP_INITRD/lib/cleanup    >/dev/null 2>/dev/null
 chmod -v  755 $TGT_TMP_INITRD/lib/insinit  >/dev/null 2>/dev/null    
 chmod -v  755 $TGT_TMP_INITRD/lib/livekitlib   >/dev/null 2>/dev/null        
 chmod -v  755 $TGT_TMP_INITRD/lib/run >/dev/null 2>/dev/null
-
+chmod -v  755 $TGT_TMP_INITRD/init  >/dev/null 2>/dev/null 
 # installer detect dialog installed or no 
 if [ "$INSTALLER_ENABLED" == "yes" ]; then
       if [ "$DIALOG" == "yes" ]; then
@@ -623,16 +446,267 @@ if [ "$INSTALLER_ENABLED" == "yes" ]; then
       fi
 fi
 
+
+
+
+
+
+
+
+
+
+
+echo "// installing boot script "
+
+cd $PWDN/bootscript
+make DESTDIR=$TGT_TMP_INITRD install-bootscripts >/dev/null 2>/dev/null
+
+echo "// Configure mdev "
+cat > $TGT_TMP_INITRD/etc/mdev.conf<< "EOF"
+# /etc/mdev/conf
+
+# Devices:
+# Syntax: %s %d:%d %s
+# devices user:group mode
+
+# null does already exist; therefore ownership has to be changed with command
+null    root:root 0666  @chmod 666 $MDEV
+zero    root:root 0666
+grsec   root:root 0660
+full    root:root 0666
+
+random  root:root 0666
+urandom root:root 0444
+hwrandom root:root 0660
+
+# console does already exist; therefore ownership has to be changed with command
+#console        root:tty 0600   @chmod 600 $MDEV && mkdir -p vc && ln -sf ../$MDEV vc/0
+console root:tty 0600 @mkdir -pm 755 fd && cd fd && for x in 0 1 2 3 ; do ln -sf /proc/self/fd/$x $x; done
+
+fd0     root:floppy 0660
+kmem    root:root 0640
+mem     root:root 0640
+port    root:root 0640
+ptmx    root:tty 0666
+
+# ram.*
+ram([0-9]*)     root:disk 0660 >rd/%1
+loop([0-9]+)    root:disk 0660 >loop/%1
+sd[a-z].*       root:disk 0660 */lib/mdev/usbdisk_link
+hd[a-z][0-9]*   root:disk 0660 */lib/mdev/ide_links
+md[0-9]         root:disk 0660
+
+tty             root:tty 0666
+tty[0-9]        root:root 0600
+tty[0-9][0-9]   root:tty 0660
+ttyS[0-9]*      root:tty 0660
+pty.*           root:tty 0660
+vcs[0-9]*       root:tty 0660
+vcsa[0-9]*      root:tty 0660
+
+ttyLTM[0-9]     root:dialout 0660 @ln -sf $MDEV modem
+ttySHSF[0-9]    root:dialout 0660 @ln -sf $MDEV modem
+slamr           root:dialout 0660 @ln -sf $MDEV slamr0
+slusb           root:dialout 0660 @ln -sf $MDEV slusb0
+fuse            root:root  0666
+
+# dri device
+card[0-9]       root:video 0660 =dri/
+
+# alsa sound devices and audio stuff
+pcm.*           root:audio 0660 =snd/
+control.*       root:audio 0660 =snd/
+midi.*          root:audio 0660 =snd/
+seq             root:audio 0660 =snd/
+timer           root:audio 0660 =snd/
+
+adsp            root:audio 0660 >sound/
+audio           root:audio 0660 >sound/
+dsp             root:audio 0660 >sound/
+mixer           root:audio 0660 >sound/
+sequencer.*     root:audio 0660 >sound/
+
+# misc stuff
+agpgart         root:root 0660  >misc/
+psaux           root:root 0660  >misc/
+rtc             root:root 0664  >misc/
+
+# input stuff
+event[0-9]+     root:root 0640 =input/
+mice            root:root 0640 =input/
+mouse[0-9]      root:root 0640 =input/
+ts[0-9]         root:root 0600 =input/
+
+# v4l stuff
+vbi[0-9]        root:video 0660 >v4l/
+video[0-9]      root:video 0660 >v4l/
+
+# dvb stuff
+dvb.*           root:video 0660 */lib/mdev/dvbdev
+
+# load drivers for usb devices
+usbdev[0-9].[0-9]       root:root 0660 */lib/mdev/usbdev
+usbdev[0-9].[0-9]_.*    root:root 0660
+
+# net devices
+tun[0-9]*       root:root 0600 =net/
+tap[0-9]*       root:root 0600 =net/
+
+# zaptel devices
+zap(.*)         root:dialout 0660 =zap/%1
+dahdi!(.*)      root:dialout 0660 =dahdi/%1
+
+# raid controllers
+cciss!(.*)      root:disk 0660 =cciss/%1
+ida!(.*)        root:disk 0660 =ida/%1
+rd!(.*)         root:disk 0660 =rd/%1
+
+sr[0-9]         root:cdrom 0660 @ln -sf $MDEV cdrom 
+
+# hpilo
+hpilo!(.*)      root:root 0660 =hpilo/%1
+
+# xen stuff
+xvd[a-z]        root:root 0660 */lib/mdev/xvd_links
+EOF
+
+
+
+
+echo "// Creating /etc/profile "
+cat > $TGT_TMP_INITRD/etc/profile << "EOF"
+# /etc/profile
+
+# Set the initial path
+export PATH=/bin:/usr/bin
+
+if [ `id -u` -eq 0 ] ; then
+        PATH=/bin:/sbin:/usr/bin:/usr/sbin
+        unset HISTFILE
+fi
+
+# Setup some environment variables.
+export USER=`id -un`
+export LOGNAME=$USER
+export HOSTNAME=`/bin/hostname`
+export HISTSIZE=1000
+export HISTFILESIZE=1000
+export PAGER='/bin/more '
+export EDITOR='/bin/vi'
+
+# End /etc/profile
+EOF
+
+echo "// Creating /etc/inittab"
+cat > $TGT_TMP_INITRD/etc/inittab<< "EOF"
+# /etc/inittab
+
+::sysinit:/etc/rc.d/startup
+
+tty1::respawn:/sbin/getty 38400 tty1
+tty2::respawn:/sbin/getty 38400 tty2
+tty3::respawn:/sbin/getty 38400 tty3
+tty4::respawn:/sbin/getty 38400 tty4
+tty5::respawn:/sbin/getty 38400 tty5
+tty6::respawn:/sbin/getty 38400 tty6
+
+# Put a getty on the serial line (for a terminal).  Uncomment this line if
+# you're using a serial console on ttyS0, or uncomment and adjust it if using a
+# serial console on a different serial port.
+#::respawn:/sbin/getty -L ttyS0 115200 vt100
+
+::shutdown:/etc/rc.d/shutdown
+::ctrlaltdel:/sbin/reboot
+EOF
+
+echo "// Creating /etc/password"
+cat > $TGT_TMP_INITRD/etc/passwd<< "EOF"
+root::0:0:root:/root:/bin/bash
+
+bin:x:1:1:bin:/bin:/bin/false  
+daemon:x:2:6:daemon:/sbin:/bin/false
+adm:x:3:16:adm:/var/adm:/bin/false
+lp:x:10:9:lp:/var/spool/lp:/bin/false
+mail:x:30:30:mail:/var/mail:/bin/false
+news:x:31:31:news:/var/spool/news:/bin/false
+uucp:x:32:32:uucp:/var/spool/uucp:/bin/false
+operator:x:50:0:operator:/root:/bin/bash
+postmaster:x:51:30:postmaster:/var/spool/mail:/bin/false
+nobody:x:65534:65534:nobody:/:/bin/false
+
+
+
+EOF
+
+
+echo "// Creating /etc/group"
+cat > $TGT_TMP_INITRD/etc/group<< "EOF"
+root:x:0:
+bin:x:1:
+sys:x:2:
+kmem:x:3:
+tty:x:4:
+tape:x:5:
+daemon:x:6:
+floppy:x:7:
+disk:x:8:
+lp:x:9:
+dialout:x:10:
+audio:x:11:
+video:x:12:
+utmp:x:13:
+usb:x:14:
+cdrom:x:15:
+adm:x:16:root,adm,daemon
+console:x:17:
+cdrw:x:18:
+mail:x:30:mail
+news:x:31:news
+uucp:x:32:uucp
+users:x:100:
+nogroup:x:65533:
+nobody:x:65534:
+
+EOF
+
+echo "// Creating /etc/fstab"
+cat > $TGT_TMP_INITRD/etc/fstab << "EOF"
+# file-system  mount-point  type   options          dump  fsck
+EOF
+
+
+
+
+echo "// Setting Hostname"
+echo "$DIST_NAME" > $TGT_TMP_INITRD/etc/HOSTNAME
+
+
+touch $TGT_TMP_INITRD/var/log/lastlog
+chmod -v 664 $TGT_TMP_INITRD/var/log/lastlog
+
+
+
+
+
 cd /tmp
+
+
+
+
+
+
+
+
 
 echo "// creating inirrd.img-$(uname -r).img to /boot dir "
 pushd newinit   >/dev/null 2>/dev/null
 find . | cpio -o -H newc -F ../initrd   >/dev/null 2>/dev/null
 popd  >/dev/null 2>/dev/null
 gzip -9 initrd  >/dev/null 2>/dev/null
-mv -vf initrd.gz /boot/initrd.img-$(uname -r) >/dev/null 2>/dev/null
+#mv -vf initrd.gz /boot/initrd.img-$(uname -r) >/dev/null 2>/dev/null
+mv -vf initrd.gz /boot/initrfs.img >/dev/null 2>/dev/null
 echo "// removing temp dir "
-rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
+#rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
 echo "// -- DONE --"
 exit 0
 }

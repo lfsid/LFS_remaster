@@ -1,0 +1,186 @@
+#!/bin/sh
+# Initial script for kolomonggo-linux
+# compare between linux live script & kolomonggo-init
+# Author of linux live kit : Tomas M <http://www.linux-live.org/>
+# Author of kolomonggo init: purnomo hadi <purnomo.shinigami@gmail.com>
+# initswitch beetwen systemd and sysvinit only for kolomonggo linux system hyrarki 
+
+export PATH=.:/:/usr/sbin:/usr/bin:/sbin:/bin
+
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+. /lib/debuginit
+. /lib/insinit
+. /lib/livekitlib
+. /lib/.config
+. /lib/persistandmode
+. /lib/syteminitswitch
+
+
+
+
+transfer_initramfs
+
+
+
+MEMORY=$LIVEKITNAME
+CHANGES=$MEMORY/changes
+UNION=$MEMORY/union
+DATAMNT=$MEMORY/data
+BUNDLES=$MEMORY/bundles
+
+
+
+
+
+############# end of all fuction #############
+
+
+
+
+# mount virtual filesystems like proc etc
+init_proc_sysfs
+
+debug_start
+init_devs
+
+init_aufs
+#init_zram
+
+if grep -q clean  /proc/cmdline; then
+  clear
+fi
+
+
+
+
+######## run init for live $DISTNAME ###########
+
+
+
+
+if grep -q live  /proc/cmdline; then
+
+header "//$DISTNAME Live Kit init start"
+
+
+
+  # find data dir with filesystem bundles
+  DATA="$(find_data 60 "$DATAMNT")"
+                                                                                                                                                      debug_shell
+  # setup persistent changes, if possible
+  persistent_changes "$DATA" "$CHANGES"
+                                                                                                                                                      debug_shell
+  # copy to RAM if needed
+  DATA="$(copy_to_ram "$DATA" "$CHANGES")"
+                                                                                                                                                      debug_shell
+  # init aufs union
+  init_union "$CHANGES" "$UNION"
+                                                                                                                                                      debug_shell
+  # add data to union
+  union_append_bundles "$DATA" "$BUNDLES" "$UNION"
+                                                                                                                                                      debug_shell
+  # rootcopy
+  copy_rootcopy_content "$DATA" "$UNION"
+
+  # create empty fstab
+  fstab_create "$UNION"
+  
+  installer_ "$UNION"
+         
+
+# __________________________________________________
+                                                 
+# only work for kolomonggo linux hirarky         
+# NOT NEEDED FOR OTHER LFS BASED DISTRO 
+                                                                                                                                      debug_shell
+ # if grep -q initsysvinit /proc/cmdline; then
+ #    echo_green_star
+ #    echo "setting up sysvinit for default init"
+ #   init_sysvinit "$UNION"
+
+ # elif grep -q initsystemd /proc/cmdline; then
+ #    echo_green_star
+ #    echo "setting up systemd for default init"
+ #    init_systemd "$UNION"
+ # else
+ #    #echo_green_star
+ #    #echo ""
+ # fi
+# __________________________________________________
+
+	if grep -q install  /proc/cmdline; then
+		
+		header "// running inatallation tool via initramfs "
+                /usr/bin/install
+	else
+		header "// Live Kit done, starting $DISTNAME"
+
+ 	  	change_root "$UNION"
+        fi
+
+
+else
+
+########################################################
+######## end run init for live $DISTNAME ########
+########################################################
+
+
+
+
+
+
+
+
+
+#######################################################################
+######## run init for $DISTNAME has already to installed ########
+#######################################################################
+header "//$DISTNAME init start"
+
+# only work for kolomonggo linux hirarky
+# OTHER LFS BASED DISTRO 
+
+
+init_function
+do_mount_root
+
+# __________________________________________________
+                                                 
+# only work for kolomonggo linux hirarky         
+# NOT NEEDED FOR OTHER LFS BASED DISTRO 
+
+#  if grep -q initsysvinit /proc/cmdline; then
+#     echo_green_star
+#     echo "setting up sysvinit for default init"
+#     init_sysvinit "/.root"
+#
+#  elif grep -q initsystemd /proc/cmdline; then
+#     echo_green_star
+#     echo "setting up systemd for default init"
+#     init_systemd "/.root"
+#  else
+#     echo_green_star
+#     echo ""
+#  fi
+
+# __________________________________________________
+
+
+header "//$DISTNAME init done, starting $DISTNAME"
+exec switch_root /.root "$init" "$@"
+
+fi
+#######################################################################
+######## end init for $DISTNAME has already to installed ########
+#######################################################################
+
+header "!!ERROR occured, you shouldn't be here.!!"
+/bin/sh
+
+
+

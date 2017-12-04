@@ -9,7 +9,7 @@
 . /lib/livekitlib
 . /lib/.config
 
-. /lib/bootsplash 
+
 . /lib/syteminitswitch
 
 

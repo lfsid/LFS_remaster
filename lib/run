@@ -1,13 +1,6 @@
 #!/bin/sh
 
-. /lib/debuginit
-. /lib/insinit
-. /lib/livekitlib
-. /lib/.config
-. /lib/persistandmode
-. /lib/bootsplash 
-. /lib/syteminitswitch
-. /etc/rc.d/init.d/functions
+
 
 
 
