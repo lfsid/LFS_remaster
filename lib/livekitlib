@@ -361,7 +361,7 @@ find_data()
       DATA="$(find_data_try "$2" "$FROM")"
       if [ "$DATA" != "" ]; then
          echo "" >&2
-         echo -e "${GREEN}   //${NC} Found on $(mounted_device "$2")" >&2
+       
          echo "$DATA"
          return
       fi
@@ -506,9 +506,9 @@ mount /$LIVEKITNAME/data/boot/install.sfs /install
 installer_()
 {
 
-         cp -R /install/{bin,etc,pkg,usr,systemd} $1 
-         cp $1/root/.bashrc $1
-         cp /install/.dialogrc $1/root/
+  #       cp -R /install/{bin,etc,pkg,usr,systemd} $1 
+ #        cp $1/root/.bashrc $1
+   #      cp /install/.dialogrc $1/root/
     #    cp -R /grub/* $1
 
 

@@ -89,7 +89,7 @@ header "//$DISTNAME Live Kit init start"
   # create empty fstab
   fstab_create "$UNION"
   
-  installer_ "$UNION"
+ # installer_ "$UNION"
          
 
 # __________________________________________________
@@ -115,7 +115,7 @@ header "//$DISTNAME Live Kit init start"
 	if grep -q install  /proc/cmdline; then
 		
 		header "// running inatallation tool via initramfs "
-                /usr/bin/install
+                /usr/bin/installer
 	else
 		header "// Live Kit done, starting $DISTNAME"
 

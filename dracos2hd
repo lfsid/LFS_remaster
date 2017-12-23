@@ -1,8 +1,4 @@
-#!/bin/sh
-. /lib/.config
-#cd /$LIVEKITNAME/union
-
-
+#!/bin/bash
 #
 # installation-help for DRACOS
 # 22.05.2007
@@ -55,7 +51,26 @@ if [ $? = 1 ] ; then
 exit
 fi
 
+dialog --clear --backtitle "dracOs `uname -m` GNU/Linux installer "  --title "-- Time Zone --" --colors --yesno "\n Do you want to set time Zone " 10 40
+if [ $? = 0 ] ; then
+clear
+      
+    		rm /timezone
 
+
+tzselect | tee -a /timezone
+	
+clear
+
+cp -v /usr/share/zoneinfo/`cat /timezone` /etc/localtime
+fi
+sleep 2 
+
+dialog --clear --backtitle "dracOs `uname -m` GNU/Linux installer "  --title "-- ROOT password --" --colors --yesno "\n Do you want to change root password   " 10 40
+if [ $? = 0 ] ; then
+clear
+passwd root 
+fi
 
 # umount harddisk for running cfdisk
 umount /mnt/* 2>/dev/null
@@ -71,9 +86,8 @@ echo expert-mode >> /etc/expert-mode
 mkdir /tmp/tmp 2>/dev/null
 TMP=/tmp/tmp 2>/dev/null
 
-#fdisk -l | sed -n 's/^Disk \(\/dev\/[^:]*\): \([^,]*\).*$/"\1" "\2" \\/p' >> $TMP/drivelist
-fdisk -l | sed -n 's/^Disk \(\/dev\/[^:]*\): \([^,]*\).*$/"\1" "\2" \\/p' | grep  -e sd >> $TMP/drivelist
-fdisk -l | sed -n 's/^Disk \(\/dev\/[^:]*\): \([^,]*\).*$/"\1" "\2" \\/p' | grep  -e hd >> $TMP/drivelist
+fdisk -l | sed -n 's/^Disk \(\/dev\/[^:]*\): \([^,]*\).*$/"\1" "\2" \\/p' >> $TMP/drivelist
+
 while [ 0 ]; do
   echo dialog --ok-label Select \
     --cancel-label Continue \
@@ -327,7 +341,3 @@ fi
 rm -R $TMP
 
 exit
-
-
-echo "installer start "
-exec /bin/sh

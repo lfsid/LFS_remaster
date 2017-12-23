@@ -245,7 +245,7 @@ echo "// copying some lib and app from system"
 
   cp -pR /lib/libreadline* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
   cp -pR /lib/libhistory* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
-  cp -pR /lib/libncurses* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+ # cp -pR /lib/libncurses* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
   cp -pR /lib/libdl* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
   cp -pR /lib/libc* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
   cp -pR /lib64/ld* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
@@ -347,60 +347,105 @@ fi
   cp -pR /usr/lib/*dialog* $TGT_TMP_INITRD/usr/lib >/dev/null 2>/dev/null
   cp -pR /bin/lsblk $TGT_TMP_INITRD/bin/lsblk >/dev/null 2>/dev/null
 
+######################
+######## misc ########
+######################
+
+  cp -pR /usr/bin/lynx $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+
+
+  cp -pR /usr/bin/nano $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+  cp -pR /usr/lib/libmagic.so.1  $TGT_TMP_INITRD/usr/lib >/dev/null 2>/dev/null
+  cp -pR /usr/lib/libmagic.so.1.0.0 $TGT_TMP_INITRD/usr/lib >/dev/null 2>/dev/null
+##########################
+######## end misc ########
+##########################
+
+
+
+
   mkdir /sources  >/dev/null 2>/dev/null
 
+##instaling ncurses#
+
+echo "// downloading ncurses6.0 using wget "
+	xterm -e  wget -c http://ftp.gnu.org/gnu//ncurses/ncurses-6.0.tar.gz >/dev/null 2>/dev/null
+
+
   cd  /sources
-#echo "// downloading busybox using wget "
-#	xterm -e  wget -c https://busybox.net/downloads/busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
-#echo "// extracting busybox "
-#	tar -xf busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
-#	cd busybox-1.27.2
+echo "// extracting ncurses"
+       xterm -e  tar -xf ncurses-6.0.tar.gz 
+       cd ncurses-6.0
+echo "// configuring ncurses"
+       xterm -e  sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in
+       xterm -e  ./configure --prefix=/          \
+                         --mandir=/usr/share/man \
+            		 --with-shared           \
+            		 --without-debug         \
+             		 --without-normal        \
+            		 --enable-pc-files       \
+             		 --enable-widec
+
+echo "// compiling ncurses"
+       xterm -e make
+echo "// installing ncurses"
+       xterm -e make DESTDIR=$TGT_TMP_INITRD  install 
 
 
-#	 xterm -e  	make distclean 
-
-#echo "// make a defconfig for busybox "
-#	 xterm -e  	make defconfig  
-
-
-#echo "// tweaking busybox for bash to ash"
-#              ##################################
-#                  #CONFIG_BASH_IS_NONE is not set	
-#        	  #CONFIG_BASH_IS_ASH=y
-#                  #CONFIG_ASH_BASH_COMPAT=y
-#                  #CONFIG_HUSH_BASH_COMPAT=y
+  cd  /sources
+echo "// downloading busybox using wget "
+	xterm -e  wget -c https://busybox.net/downloads/busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
+echo "// extracting busybox "
+	tar -xf busybox-1.27.2.tar.bz2 >/dev/null 2>/dev/null
+	cd busybox-1.27.2
 
 
-#                  echo "    -- set # CONFIG_BASH_IS_NONE is not set to config "
-#                  sed '/CONFIG_BASH_IS_NONE/d' -i .config
-#		  echo "# CONFIG_BASH_IS_NONE is not set" >>.config
-#
- #                 echo "    -- set CONFIG_BASH_IS_ASH=y to config "
- #                 sed '/CONFIG_BASH_IS_ASH/d' -i .config
-#		  echo "CONFIG_BASH_IS_ASH=y" >>.config
-#
+	 xterm -e  	make distclean 
+
+echo "// make a defconfig for busybox "
+	 xterm -e  	make defconfig  
+
+cp $PWDN/busybox.config .config -v 
+
+
+echo "// tweaking busybox for bash to ash"
+              ##################################
+                  #CONFIG_BASH_IS_NONE is not set	
+        	  #CONFIG_BASH_IS_ASH=y
+                  #CONFIG_ASH_BASH_COMPAT=y
+                  #CONFIG_HUSH_BASH_COMPAT=y
+
+
+                  echo "    -- set # CONFIG_BASH_IS_NONE is not set to config "
+                 sed '/CONFIG_BASH_IS_NONE/d' -i .config
+		  echo "# CONFIG_BASH_IS_NONE is not set" >>.config
+
+                 echo "    -- set CONFIG_BASH_IS_ASH=y to config "
+                  sed '/CONFIG_BASH_IS_ASH/d' -i .config
+		  echo "CONFIG_BASH_IS_ASH=y" >>.config
+                 
 
 
 
-  	     ###################################
+ 	     ###################################
        
-#echo "// compiling busybox "        
+echo "// compiling busybox "        
 
- #        xterm -e  make
+         xterm -e  make
   	
-#echo "// installing busybox " 
- # 	xterm -e  make CONFIG_PREFIX=$TGT_TMP_INITRD  install 
+echo "// installing busybox " 
+  	xterm -e  make CONFIG_PREFIX=$TGT_TMP_INITRD  install 
 
 
 cd $PWDN
 
-echo "// installing busybox $(uname -m)"
-if [ "$(uname -m)" != 'x86_64' ]; then
-      cp -vpR   busybox/x86_64/bin $TGT_TMP_INITRD >/dev/null 2>/dev/null
-else
-  
-   cp -vpR   busybox/x86/bin $TGT_TMP_INITRD >/dev/null 2>/dev/null
-fi 
+#echo "// installing busybox $(uname -m)"
+#if [ "$(uname -m)" != 'x86_64' ]; then
+#      cp -vpR   busybox/x86_64/bin $TGT_TMP_INITRD >/dev/null 2>/dev/null
+#else
+#  
+#   cp -vpR   busybox/x86/bin $TGT_TMP_INITRD >/dev/null 2>/dev/null
+#fi 
 
 
 
@@ -704,7 +749,7 @@ find . | cpio -o -H newc -F ../initrd   >/dev/null 2>/dev/null
 popd  >/dev/null 2>/dev/null
 gzip -9 initrd  >/dev/null 2>/dev/null
 #mv -vf initrd.gz /boot/initrd.img-$(uname -r) >/dev/null 2>/dev/null
-mv -vf initrd.gz /boot/initrfs.img >/dev/null 2>/dev/null
+mv -vf initrd.gz initrfs.img >/dev/null 2>/dev/null
 echo "// removing temp dir "
 #rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
 echo "// -- DONE --"
