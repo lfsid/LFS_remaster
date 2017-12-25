@@ -55,7 +55,9 @@ if grep -q clean  /proc/cmdline; then
 fi
 
 
-
+if grep -q embeded  /proc/cmdline; then
+/linuxrc
+fi
 
 ######## run init for live $DISTNAME ###########
 
@@ -115,12 +117,17 @@ header "//$DISTNAME Live Kit init start"
 	if grep -q install  /proc/cmdline; then
 		
 		header "// running inatallation tool via initramfs "
-                /usr/bin/installer
-	else
+                /bin/installer
+        elif grep -q recovery /proc/cmdline; then
+                /linuxrc
+	
+        else
 		header "// Live Kit done, starting $DISTNAME"
 
  	  	change_root "$UNION"
         fi
+
+
 
 
 else

@@ -6,11 +6,7 @@
 
 
 
-MEMORY=/kolomonggo
-CHANGES=$MEMORY/changes
-UNION=$MEMORY/union
-DATAMNT=$MEMORY/data
-BUNDLES=$MEMORY/bundles
+s
 
 
 if grep -q live  /proc/cmdline; then

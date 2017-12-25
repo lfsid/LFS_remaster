@@ -4,9 +4,9 @@
 # 
 . /etc/rc.d/init.d/functions
 
-/bin/mount -t proc none /proc
-/bin/mount -t sysfs none /sys
-/bin/mount -t tmpfs /tmp /tmp
+/bin/mount -t proc none /proc >/dev/null 2>/dev/null
+/bin/mount -t sysfs none /sys >/dev/null 2>/dev/null
+/bin/mount -t tmpfs /tmp /tmp >/dev/null 2>/dev/null
 /bin/mkdir /dev/pts
 /bin/mkdir /dev/shm
 

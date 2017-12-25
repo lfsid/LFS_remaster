@@ -1,0 +1,37 @@
+BUSYBOX_FILE
+ZLIB_FILE
+NETPLUG_FILE
+NETPLUG2_FILE
+DROPBEAR_FILE
+WT_FILE
+
+BUSYBOX_SRC
+ZLIB_SRC
+NETPLUG_SRC
+NETPLUG2_SRC
+DROPBEAR_SRC
+WT_SRC
+
+
+CONFIG_BLKID=y
+CONFIG_FEATURE_BLKID_TYPE=y
+
+
+CONFIG_FEATURE_VOLUMEID_SQUASHFS=y
+
+
+
+                  echo "    -- set CONFIG_BLKID=y config "
+                 sed '/CONFIG_BLKID/d' -i .config
+		  echo "CONFIG_BLKID=y" >>.config
+
+
+                  echo "    -- set CONFIG_FEATURE_BLKID_TYPE=y to config "
+                  sed '/CONFIG_FEATURE_BLKID_TYPE/d' -i .config
+		  echo "CONFIG_FEATURE_BLKID_TYPE=y" >>.config
+
+
+                 echo "    -- set CONFIG_FEATURE_VOLUMEID_SQUASHFS=y to config "
+                  sed '/CONFIG_FEATURE_VOLUMEID_SQUASHFS/d' -i .config
+		  echo "CONFIG_FEATURE_VOLUMEID_SQUASHFS=y" >>.config
+                 

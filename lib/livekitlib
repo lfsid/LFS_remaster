@@ -10,6 +10,7 @@
 
 
 
+
 # header
 # $1 = text to show
 #
@@ -503,8 +504,8 @@ mount /$LIVEKITNAME/data/boot/install.sfs /install
 
 
 
-installer_()
-{
+#installer_()
+#{
 
   #       cp -R /install/{bin,etc,pkg,usr,systemd} $1 
  #        cp $1/root/.bashrc $1
@@ -513,7 +514,7 @@ installer_()
 
 
 
-}
+#}
 
 
 # Change root and execute init
