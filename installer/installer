@@ -50,7 +50,7 @@ install_b(){
  	do 
  		if [ -f $file ]; then
 	                echo "//   $LIVEKITNAME is intalling ... "
-			echo "//   copiying system file  $file to  /mnt/`cat $TMP/pout | cut -b 6-9`/"
+			echo "//   copying system file  $file to  /mnt/`cat $TMP/pout | cut -b 6-9`/"
 			cp-gnu --preserve --parent $file /mnt/`cat $TMP/pout | cut -b 6-9`/ &>/dev/null
 
 			clear 
