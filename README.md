@@ -44,3 +44,9 @@ initswitch beetwen systemd and sysvinit only for kolomonggo linux system hyrarki
 
 
  
+HOW to use it 
+extract to "/" file system don't extrack to other directory and run with root account
+create directory sources under "/" example  = /sources
+run  
+# ./lfskit --built-initrd
+ 
