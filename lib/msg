@@ -1,0 +1,25 @@
+#!/bin/sh
+#this file is part of installer 
+
+ BACK_TITLE="draOs `uname -m` GNU/Linux installer"
+
+ CUSTOM_MSG="draOsLinux is the Linux operating system from Indonesia Open source.
+             is built based on the Linux From Scratch under the protection of the
+             GNU General Public License v3.0.\n\nThis operating system is one variant of Linux distributions,
+              which is used to perform security testing (penetration testing).
+             \n\n draOslinux in Arm by hundreds hydraulic pentest, forensics and reverse engineering. Does not use a GUI-based tools-tools and just have the software using the CLI (command line interface) 
+             \n\n to perform its operations. Now draOs currently already up to version $VER_OS with the code name leak.
+             \n\nWebsite :https://www.dracost-linux.org \n\nForum : https://forum.dracos-linux.org \n\n\OurTeam :https://dracos-linux.org/team/"
+
+
+ CUSTOM_MSG2="$LIVEKITNAME Installer is a curses based tool to install your running $LIVEKITNAME to your harddisk.
+              \n\n You are able to partition and format your harddisk and install in the end a bootloader.
+              \n\n You will use this installer at your own risk. I am not responsible for lost of datas or something else.
+              \n\n If you accept this, you can start now! Or you may cancel the installer!"
+
+
+
+ MSG_CFDISK="$LIVEKITNAME installer will now start cfdisk so that you are able to create new partitions for $LIVEKITNAME.
+             \n\nTwo partitions are recommended. [1] for the system and [1] for SWAP.\n\nI think 20 GB are enough for the root-partition - 
+             $LIVEKITNAME plus additional programs - and twice the amount of your \ZB\Z1RAM for the swap-partition.\n\nJust follow the menu, store your changes and quit cfdisk to go on!\n\n	
+             IMPORTANT: Read the instructions and the output of cfdisk carefully. Sometimes you have to reboot to update the partition table!"

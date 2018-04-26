@@ -1,0 +1,174 @@
+#!/bin/bash
+
+# created by purnomo hadi 
+# installation tools for kolomonggo linux and dracOs linux 
+# under GPL 2 / newer licency 
+# coyright april 2018 
+
+
+
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
+
+
+
+. ../lib/.config
+
+KERNEL_MODULES="$(uname -r)"
+
+PWDN=$(pwd)
+
+##################
+#### function ####
+##################
+
+
+print_help() {
+        echo -e $white
+        
+       
+        echo " 01      110101   01011           "
+        echo " 10      01      11                 "
+        echo " 00      010000   10101  "
+        echo " 11      00           01  "
+        echo " 011101  10       01001  "
+        echo""
+        echo "installer  for lfs based os"
+        echo "created by purnomo hadi fb:purnomo.shinigami purnomo.shinigami@gmail.com ,"
+        echo "under GPLv2 or later license "
+        echo "LFS based OS with AUFS and squashfs tools , initramfs based on linux live kit"
+        echo ""
+        echo " -h,   --help      Show the help"
+	echo " -v,   --version   Show the version"
+
+}
+
+greeting() {
+	if [ "$LIVEKITNAME" == "dracOs" ]; then
+		echo ""
+		echo "  $DISTNAME is the Linux operating system from Indonesia Open source."
+        	echo "  is built based on the Linux From Scratch under the protection of the"
+        	echo "  GNU General Public License v3.0. This operating system is one variant "
+                echo "  of Linux distributions, which is used to perform security testing "
+                echo "  (penetration testing). $DISTNAME in Arm by hundreds hydraulic pentest,"
+                echo "  forensics and reverse engineering. Does not use a GUI-based tools-tools"
+                echo "  and just have the software using the CLI (command line interface). "
+        	echo "  Now  $DISTNAME currently already up to version $VER_OS with the "
+		echo "  code name $CODE_NAME."
+        	echo "  Website :https://www.dracost-linux.org Forum : https://forum.dracos-linux.org "
+                echo "  OurTeam :https://dracos-linux.org/team/"
+        	echo ""
+	elif [ "$LIVEKITNAME" == "kolomonggo" ]; then
+		echo ""
+		echo "  $DISTNAME is the Linux operating system from Indonesia Open source. "
+        	echo "  is built based on the Linux From Scratch under the protection of the"
+        	echo "  GNU General Public License v3.0. This operating system is one "
+		echo "  variant of Linux distributions. Now $DISTNAME currently already up to "
+                echo "  version $VER_OS with the code name $CODE_NAME."
+        	echo "  Website :https://kolomonggolinux.pe.hu"
+        	echo ""
+	else
+		echo ""
+		echo "  $DISTNAME is the Linux operating system from Indonesia Open source."
+        	echo "  is built based on the Linux From Scratch under the protection of the"
+        	echo "  GNU General Public License v3.0. This operating system is one variant of Linux distributions,"
+        	echo "  to perform its operations. Now  $DISTNAME currently already up to version $VER_OS with the code name $CODE_NAME."
+        	echo ""
+	fi
+
+    read -rsp $'Press any key to continue...\n' -n1 key
+
+
+}
+
+#tweking() {
+
+#} 
+#select_disk() {
+
+#}
+
+#formating() {
+
+#}
+
+#grub_install() {
+
+#}
+
+#grub_generateing() {
+
+#}
+
+
+run_() {
+	greeting
+
+
+}
+
+
+
+parse_options() {
+	if [ $# -lt 1 ]; then
+		print_help
+	else
+		while [ "$1" ]; do
+			case "${1}" in
+				--run)
+					SETUP_RUN="yes"
+                                        ;;
+				-v|--version)
+					echo "`basename ${COMMAND}` $VERSION"
+					exit 0
+					;;
+				--cal)
+					echo ""
+					;;
+				-h|--help)
+					print_help
+					exit 0
+					;;
+				*)
+					echo "`basename ${COMMAND}`: invalid option $1"
+					exit 1
+					;;
+			esac
+			shift
+		done
+	fi
+}
+
+main () {
+	parse_options "$@"
+	ALL_LIST=$@
+
+	
+        if [ "$SETUP_RUN" == "yes" ]; then
+		
+		run_
+               
+        elif [ "$SETUP_REMASTERING" == "yes" ]; then
+
+                print_help
+	fi
+
+}
+
+
+
+
+
+
+
+
+
+########################
+#### end of funtion ####
+########################
+
+parse_options "$@"
+
+ main "$@"

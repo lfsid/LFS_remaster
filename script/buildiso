@@ -1,0 +1,110 @@
+#!/bin/bash 
+
+
+LFS_CFG() {
+
+cat > $TGT_LIVE_DISK/boot/lfs.cfg << "EOF"
+
+PROMPT 0
+TIMEOUT 90
+DEFAULT /boot/vesamenu.c32
+MENU BACKGROUND /boot/bootlogo.png
+
+MENU WIDTH 36
+MENU MARGIN 0
+MENU ROWS 8
+MENU HELPMSGROW 14
+MENU TIMEOUTROW 22
+MENU TABMSGROW 24
+MENU CMDLINEROW 24
+MENU HSHIFT 40
+MENU VSHIFT 2
+
+	menu color screen	37;40      #00000000 #00000000 none
+	menu color border	30;44      #00000000 #00000000 none
+	menu color title	1;36;44    #00000000 #00000000 none
+	menu color unsel	37;44      #ff60CA00 #00000000 none
+	menu color hotkey	1;37;44    #ff60CA00 #00000000 none
+	menu color sel		7;37;40    #ffffffff #ff60CA00 none
+	menu color hotsel	1;7;37;40  #ff808080 #ff60CA00 none
+	menu color scrollbar	30;44      #00000000 #00000000 none
+
+	menu color tabmsg	31;40      #aaaaaaaa #00000000 none
+	menu color cmdmark	1;36;40    #ffff0000 #00000000 none
+	menu color cmdline	37;40      #aaaaaaaa #00000000 none
+	menu color pwdborder	30;47      #ffff0000 #00000000 std
+	menu color pwdheader	31;47      #ffff0000 #00000000 std
+	menu color pwdentry	30;47      #ffff0000 #00000000 std
+	menu color timeout_msg	37;40      #aaaaaaaa #00000000 none
+	menu color timeout	1;37;40    #ffaaaaff #00000000 none
+	menu color help		37;40      #aaaaaa00 #00000000 none
+	menu color msg07	37;40      #90ffffff #00000000 std
+
+
+
+LABEL run $LIVEKIT_NAME
+MENU LABEL Run $LIVEKIT_NAME
+KERNEL /boot/vmlinuz
+APPEND initrd=/boot/initrfs.img quiet live 
+
+TEXT HELP
+                                          More about currently selected:
+
+                                          Run kolomonggo linux live systemd
+                                          and you can install later 
+ENDTEXT
+
+
+EOF
+if [ "$EMBEDED_INITRD" == "yes" ]; then
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "LABEL run $LIVEKITNAME" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "MENU LABEL Run $LIVEKITNAME" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "KERNEL /boot/vmlinuz" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "APPEND initrd=/boot/initrfs.img quiet embeded" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "TEXT HELP" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "	                                  More about currently selected:" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "        	                          Run kolomonggo linux live systemd" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "                	                  and you can install later " >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "ENDTEXT" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+
+
+
+
+fi 
+
+
+if [ "$INSTALLER_ENABLED" == "yes" ]; then
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "LABEL run $LIVEKITNAME" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "MENU LABEL Run $LIVEKITNAME" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "KERNEL /boot/vmlinuz" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "APPEND initrd=/boot/initrfs.img quiet live install" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "TEXT HELP" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "	                                  More about currently selected:" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "        	                          Run kolomonggo linux live systemd" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "                	                  and you can install later " >> $TGT_LIVE_DISK/boot/lfs.cfg
+	echo "ENDTEXT" >> $TGT_LIVE_DISK/boot/lfs.cfg
+        echo "" >> $TGT_LIVE_DISK/boot/lfs.cfg
+
+
+
+
+fi 
+
+
+}
+
+
+
+
+#build_iso(){
+
+
+#}
+

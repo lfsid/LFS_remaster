@@ -23,14 +23,10 @@
 #Installer $LIVEKITNAME Linux  Gnu/Linux version 2.0
 
 
-MEMORY=/memory
-CHANGES=$MEMORY/changes
-UNION=$MEMORY/union
-DATAMNT=$MEMORY/data
-BUNDLES=$MEMORY/bundles
 
 
 
+setterm --reset
 
 #####################################################
 # SOME COLOURS BIAR COOL
@@ -44,30 +40,14 @@ red='\e[1;31m'
 yellow='\e[1;33m'
 BlueF='\e[1;34m'
 
-install_b(){
-	cd $MEMORY/union
-	for file in $(cat /data-manifest)
- 	do 
- 		if [ -f $file ]; then
-	                echo "//   $LIVEKITNAME is intalling ... "
-			echo "//   copiying system file  $file to  /mnt/`cat $TMP/pout | cut -b 6-9`/"
-			cp-gnu --preserve --parent $file /mnt/`cat $TMP/pout | cut -b 6-9`/ &>/dev/null
 
-			clear 
-
-		else
-  			echo "File $file does not exist."
- 		fi
-  	done
-
-}
-
-#cp  --preserve -R  /{bin,boot,etc,home,lib,root,sbin,srv,usr,var,opt,lib64} /mnt/`cat $TMP/pout | cut -b 6-9`/ 2>/dev/null
-#rsync -pavr /mnt/live/memory/bundles/root.sfs/*  /mnt/`cat $TMP/pout | cut -b 6-9`/ 2>/dev/null
+######################################################
+#Some Variable
+#echo -e "Holla  \e[0m"
 
 ####################################################
 ####################################################
-#rm /data-manifest 2>/dev/null
+
 clear
 
 TMP=/tmp/tmp
@@ -80,20 +60,19 @@ crunch() {
  read STRING;
  echo $STRING;
 }
-mkdir $MEMORY/union/dev
-mkdir $MEMORY/union/proc
-mkdir $MEMORY/union/sys
-mkdir $MEMORY/union/run
-mkdir $MEMORY/union/tmp
-clear
+mkdir /$MEMORY/union/dev
+mkdir /$MEMORY/union/proc
+mkdir /$MEMORY/union/sys
+mkdir /$MEMORY/union/run
+mkdir /$MEMORY/union/tmp
 
-mount -v --bind /dev $MEMORY/union/dev
+mount -v --bind /dev /$MEMORY/union/dev
 
-clear
-mount -vt devpts devpts $MEMORY/union/proc/dev/pts -o gid=5,mode=620
-mount -vt proc proc $MEMORY/union/proc
-mount -vt sysfs sysfs $MEMORY/union/sys
-mount -vt tmpfs tmpfs $MEMORY/union/run
+
+mount -vt devpts devpts /$MEMORY/union/proc/dev/pts -o gid=5,mode=620
+mount -vt proc proc /$MEMORY/union/proc
+mount -vt sysfs sysfs /$MEMORY/union/sys
+mount -vt tmpfs tmpfs /$MEMORY/union/run
 
 
 
@@ -109,7 +88,7 @@ fi
 dialog --clear --backtitle "$BACK_TITLE  "  --title "-- ROOT password --" --colors --yesno "\n Do you want to change root password   " 10 40
 if [ $? = 0 ] ; then
 clear
-chroot  /$MEMORY/union /bin/passwd root 
+chroot  /$LIVEKITNAME/union /bin/passwd root 
 fi
 
 
@@ -181,7 +160,7 @@ fdisk -l | grep Linux | sed -e '/swap/d' | cut -b 1-9 > $TMP/pout 2>/dev/null
 partprobe `cat $TMP/pout |  cut -b 1-8` 
 
 
-dialog --clear --backtitle "$BACK_TITLE "  --title " -- ROOT PARTITION DETECTED -- " --exit-label OK  --colors --msgbox "\n\n  $LIVEKITNAME  installer has   detected `cat $TMP/pout` \n\nas your   linux partition(s).\n\n In the next box you can   choose the linux filesystem  for your   root partition  or choose the partition if you have more   linux partitions!" 20 80
+dialog --clear --backtitle "$BACK_TITLE "  --title " -- ROOT PARTITION DETECTED -- " --exit-label OK  --colors --msgbox "\n\n  $LIVEKITNAME  installer has   detected `cat /tmp/tmp/pout` \n\nas your   linux partition(s).\n\n In the next box you can   choose the linux filesystem  for your   root partition  or choose the partition if you have more   linux partitions!" 20 80
 if [ $? = 1 ] ; then
 exit
 fi
@@ -243,16 +222,52 @@ fi
 
 
 
-##########################
-## installation prosses ##
-##########################
+###############################
+DIRS=( bin boot opt usr etc home lib root sbin srv  var  lib64 )
 
-install_b
+# Destination directory
+#DEST="/tmp/test.$$"
 
+# Create $DEST if does not exits
+#[ ! -d $DEST ] && mkdir -p $DEST
 
+#
+# Show a progress bar
+# ---------------------------------
+# Redirect dialog commands input using substitution
+#
+dialog --title "Copy file" --gauge "Copying file..." 10 75 < <(
+   # Get total number of files in array
+   n=${#DIRS[*]};
 
+   # set counter - it will increase every-time a file is copied to $DEST
+   i=0
 
-cd $UNION
+   #
+   # Start the for loop
+   #
+   # read each file from $DIRS array
+   # $f has filename
+   for f in "${DIRS[@]}"
+   do
+      # calculate progress
+      PCT=$(( 100*(++i)/n ))
+
+      # update dialog box
+cat <<EOF
+XXX
+$PCT
+Copying file "$f" ...
+XXX
+EOF
+  # copy file /memory/union/$f 
+  cp  --preserve -R /memory/union/$f /mnt/`cat $TMP/pout | cut -b 6-9`/ &>/dev/null
+   done
+)
+################################
+
+#cp  --preserve -R  /{bin,boot,etc,home,lib,root,sbin,srv,usr,var,opt,lib64} /mnt/`cat $TMP/pout | cut -b 6-9`/ 2>/dev/null
+#rsync -pavr /mnt/live/memory/bundles/root.sfs/*  /mnt/`cat $TMP/pout | cut -b 6-9`/ 2>/dev/null
 mkdir /mnt/`cat $TMP/pout | cut -b 6-9`/dev 2>/dev/null
 mkdir /mnt/`cat $TMP/pout | cut -b 6-9`/dev/pts 2>/dev/null
 mkdir /mnt/`cat $TMP/pout | cut -b 6-9`/mnt 2>/dev/null
@@ -288,8 +303,8 @@ mount -t proc /proc /mnt/`cat $TMP/pout | cut -b 6-9`/proc
 mount -vt devpts -o gid=5,mode=620 devpts /mnt/`cat $TMP/pout | cut -b 6-9`/dev/pts
 mount -vt tmpfs tmpfs /mnt/`cat $TMP/pout | cut -b 6-9`/run
 mount -vt sysfs sysfs /mnt/`cat $TMP/pout | cut -b 6-9`/sys
-#cp-gnu --preserve -R /etc/grub.d.deb/* /mnt/`cat $TMP/pout | cut -b 6-9`/etc/grub.d/ 2>/dev/null
-#cp -f /.bashrc  /mnt/`cat $TMP/pout | cut -b 6-9`/root/.bashrc
+cp --preserve -R /etc/grub.d.deb/* /mnt/`cat $TMP/pout | cut -b 6-9`/etc/grub.d/ 2>/dev/null
+cp -f /.bashrc  /mnt/`cat $TMP/pout | cut -b 6-9`/root/.bashrc
 
 dialog --clear --backtitle "$BACK_TITLE "  --title " -- Installing GRUB Boot loader -- " --colors --radiolist "\n\n Now you can choose   install grub  or if you have   grub before  and use it please select   no .to /mnt/`cat $TMP/pout | cut -b 6-9`/" 10 70 0 \
 "1" "yes" on \
@@ -303,13 +318,13 @@ fi
 
     dialog --backtitle "$BACK_TITLE "  --title " -- Installing GRUB Boot loader -- " --colors --msgbox "\n\n   Grub-install `cat $TMP/pout |  cut -b 1-8` --force --boot-directory=/mnt/`cat $TMP/pout |  cut -b 6-9`/boot" 10 75
 
-   chroot  $UNION/sbin/grub-install `cat $TMP/pout |  cut -b 1-8` --force --boot-directory=/mnt/`cat $TMP/pout |  cut -b 6-9`/boot
+   chroot  /$LIVEKITNAME/union/sbin/grub-install `cat $TMP/pout |  cut -b 1-8` --force --boot-directory=/mnt/`cat $TMP/pout |  cut -b 6-9`/boot
 
      ################################################
      # remove uneeded grub my be make stuck on boot #
      ################################################
      rm -vf /mnt/`cat $TMP/pout |  cut -b 6-9`/etc/grub.d/*xen
-   #  rm -vf /etc/grub.d/*xen
+     rm -vf /etc/grub.d/*xen
 
     chroot /mnt/`cat $TMP/pout |  cut -b 6-9` /sbin/grub-mkconfig -o /boot/grub/grub.cfg
    # chroot /mnt/`cat $TMP/pout |  cut -b 6-9` /usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg
@@ -341,3 +356,6 @@ rm -R $TMP
 
 exit
 
+
+echo "installer start "
+exec /bin/sh

@@ -489,7 +489,7 @@ mkdir /install
 mkdir /grub
 
 #mount /memory/data/boot/grub.sfs /grub 
-mount /$LIVEKITNAME/data/boot/install.sfs /install
+#mount /$LIVEKITNAME/data/boot/install.sfs /install
 
 
 # If mydbg are not requested, end here

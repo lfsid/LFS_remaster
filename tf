@@ -1,0 +1,12 @@
+/bin/sh
+/bin/bash
+/bin/dd
+/bin/ifconfig
+/bin/cfdisk
+/bin/nano
+/bin/sh
+/bin/bash
+/bin/dd
+/sbin/ifconfig
+/sbin/cfdisk
+/usr/bin/nano

@@ -1,0 +1,120 @@
+#!/bin/bash 
+
+
+
+
+download_function()
+{
+
+mkdir $SRC_PKG_DIR  >/dev/null 2>/dev/null
+
+
+cd $SRC_PKG_DIR
+
+rm $SRC_PKG_DIR/pkg-list  >/dev/null 2>/dev/null
+ echo "// cecking & downloading pakage sources"
+ 
+ 
+
+ 
+if [ -f "$EFS_FILE" ];
+then
+   echo "   // File e2fsprogs exist."
+else
+   echo "   -- File e2fsprogs does not exist, add to download list"
+   echo "$EFS_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+ 
+if [ -f "$UTILS_LINUX_FILE" ];
+then
+   echo "   // File util linux exist."
+else
+   echo "   -- File util linux does not exist, add to download list"
+   echo "$UTILS_lINUX_SRC" >> $SRC_PKG_DIR/pkg-list
+  
+fi
+ 
+if [ -f "$BUSYBOX_FILE" ];
+then
+   echo "   // File $BUSYBOX_FILE exist."
+else
+   echo "   -- File $BUSYBOX_FILE does not exist, add to download list"
+   echo "$BUSYBOX_SRC" >> $SRC_PKG_DIR/pkg-list
+  
+fi
+if [ -f "$NCURSES_FILE" ];
+then
+   echo "   // File $NCURSES_FILE exist."
+else
+   echo "   -- File $NCURSES_FILE does not exist, add to download list"
+   echo "$NCURSES_SRC" >> $SRC_PKG_DIR/pkg-list
+  
+fi
+ 
+if [ -f "$ZLIB_FILE" ];
+then
+   echo "   // File $ZLIB_FILE exist."
+else
+   echo "   -- File $ZLIB_FILE does not exist, add to download list" 
+   echo "$ZLIB_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+ 
+if [ -f "$NETPLUG_FILE" ];
+then
+   echo "   // File $NETPLUG_FILE exist."
+else
+   echo "   -- File $NETPLUG_FILE does not exist, add to download list" 
+echo "$NETPLUG_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+ 
+if [ -f "$NETPLUGP_FILE" ];
+then
+   echo "   // File  $NETPLUGP_FILE exist."
+else
+   echo "   -- File  $NETPLUGP_FILE does not exist, add to download list" 
+echo " $NETPLUGP_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+ 
+if [ -f "$DROPBEAR_FILE" ];
+then
+   echo "   // File $DROPBEAR_FILE exist."
+else
+   echo "   -- File $DROPBEAR_FILE does not exist, add to download list" 
+echo "$DROPBEAR_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+ 
+if [ -f "$WT_FILE" ];
+then
+   echo "   // File  $WT_FILE exist."
+else
+   echo "   -- File  $WT_FILE does not exist, add to download list" 
+echo "$WT_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+
+
+
+
+
+cd $SRC_PKG_DIR
+
+
+
+
+
+
+
+
+
+
+#####################
+#### downloading ####
+#####################
+
+if [ -f "$SRC_PKG_DIR/pkg-list" ];
+then
+   echo "// Downloading sources"
+   $TERMINAL_TOOLS wget -c -i $SRC_PKG_DIR/pkg-list
+  
+fi
+
+}

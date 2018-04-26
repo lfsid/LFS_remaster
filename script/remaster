@@ -1,0 +1,49 @@
+#!/bin/bash
+
+
+remaster_() {
+
+echo "// REMASTERING process "
+echo ""
+echo "  --- CAUTION ! --- "
+echo ""
+echo " before continue please backup or remove "
+echo " private file and folder in your root or /home/*"
+echo " clean your browser cache, pasword, etc"
+echo " Example: "
+echo " .mozilla, .cache, .ssh, file in Download folder, bash_history"
+echo " .thumbnails, etc. in your root and /home/user dir ,so not to get"
+echo " carried into remastering"
+echo ""
+
+read -rsp $'if done Press any key to continue...\n' -n1 key
+
+
+rm -rf  $TGT_LIVE_DISK >/dev/null 2>/dev/null
+rm -rf $TGT_SQUASHFS >/dev/null 2>/dev/null
+
+mkdir -pv $TGT_LIVE_DISK $TGT_SQUASHFS 
+cp -vpR $SRC_ISO $TGT_LIVE_DISK
+cp  --preserve -R  /{bin,boot,etc,home,lib,sbin,srv,usr,var,opt,lib64} $TGT_SQUASHFS
+mkdir -vp $TGT_SQUASHFS/root
+mkdir -vp $TGT_SQUASHFS/root/Desktop
+mkdir -vp $TGT_SQUASHFS/root/Downloads
+mkdir -vp $TGT_SQUASHFS/mnt
+mkdir -vp $TGT_SQUASHFS/tmp
+mkdir -vp $TGT_SQUASHFS/dev
+mkdir -vp $TGT_SQUASHFS/proc
+mkdir -vp $TGT_SQUASHFS/sys
+mkdir -vp $TGT_SQUASHFS/run
+
+
+
+cp -v /root/.bash* $TGT_SQUASHFS/root
+cp -vpR /root/.config $TGT_SQUASHFS/root
+cp -v /root/.vim* $TGT_SQUASHFS/root
+cp -v /root/.top* $TGT_SQUASHFS/root
+
+
+
+}
+
+

@@ -1,0 +1,218 @@
+#!/bin/bash
+
+
+
+
+#################################
+##### checking dependwnceis #####
+#################################
+
+ceck_depend() {
+
+  echo "checking dependencies ..."
+
+
+ 
+  sleep 0.5 
+
+  if ! [ -x "$(command -v mksquashfs)" ]; then
+  	SQUASHFS="no"  
+        echo "checking squashfs-tools    no"
+  else 
+  	SQUASHFS="yes"
+	echo "checking squashfs-tools    yes "
+  fi
+  sleep 0.5
+   
+  if ! [ -x "$(command -v git)" ]; then
+  	GITAPP="no"
+         echo "checking git     no"
+  else 
+  	GITAPP="yes"
+        echo "checking git    yes "
+  fi
+  sleep 0.5
+
+  if ! [ -x "$(command -v sudo)" ]; then
+  	SUDOAPP="no"
+         echo "checking sudo     no"
+  else 
+ 	SUDOAPP="yes"
+        echo "checking sudo    yes "
+  fi
+  sleep 0.5
+  if ! [ -x "$(command -v wget)" ]; then
+  	WGETAPP="no"
+         echo "checking wget     no"
+  else 
+  	WGETAPP="yes"
+        echo "checking wget    yes "
+  fi
+
+  sleep 0.5
+  if ! [ -x "$(command -v xorrisofs)" ]; then
+  	ISOBURN="no"
+         echo "checking xorrisofs     no"
+  else 
+  	ISOBURN="yes"
+         echo "checking xorrisofs     yes "
+  
+  fi
+ sleep 0.5
+
+if [ "$INSTALLER_ENABLED" == "yes" ]; then
+     echo "installer enabled    yes"
+     
+  
+         
+         NOCKI_INS="yes"
+    
+fi
+
+
+ sleep 1
+if grep -qw aufs /proc/filesystems; then
+  echo "checking AUFS      yes "
+  AUFS_MODULE="yes"
+else 
+  echo "checking AUFS      no "
+  AUFS_MODULE="no"
+fi
+ sleep 1
+
+if [ "$SETUP_REMASTERING" == "yes" ]; then
+	if [ -f "$KERNEL_FILE" ];
+	then
+   		echo "kernwl $KERNEL_FILE     yes"
+                KERN_INS="yes"
+	else    
+               summary_
+              
+   	       echo "   kernel        $KERNEL_FILE not found."  
+               echo "                 please edit in config or lib/.config "
+               echo ""
+               exit 1
+	fi
+fi 
+
+
+
+sleep 1 
+
+
+}
+
+
+
+err_depend() {
+summary_
+echo ""
+echo "unmeet dependencies  , plese compile and instal- it "
+exit 1
+}
+
+
+
+summary_(){ 
+
+
+echo ""
+echo "   --- SUMMARY ---"
+echo ""
+echo "- Required dependencies "
+echo ""
+
+
+if [ "$ISOBURN" == "yes" ]; then
+	echo "   Xorrisofs           installed"
+else
+	echo "   Xorrisofs           not-installed"
+fi
+
+
+if [ "$SQUASHFS" == "yes" ]; then
+	echo "   squashfs-tools      installed"
+else
+	echo "   squashfs-tools      not-installed"
+fi
+
+if [ "$SUDOAPP" == "yes" ]; then
+	echo "   sudo                installed"
+else
+	echo "   sudo                not-installed"
+fi
+
+if [ "$WGETAPP" == "yes" ]; then
+	echo "   wget                installed"
+else
+	echo "   wget                not-installed"
+fi
+
+if [ "$GITAPP" == "yes" ]; then
+	echo "   git                 installed"
+else
+	echo "   git                 not-installed"
+fi
+
+
+echo ""
+echo "- optional dependencies for initramfs but Required  for build live disk"
+
+echo ""
+
+if [ "$AUFS_MODULE" == "yes" ]; then
+	echo "   kernel aufs module      yes"
+else
+	echo "   kernel aufs module      no"
+fi
+
+
+
+
+echo ""
+echo "- optional dependencies for installer inside in initramfs"
+echo "  "
+
+
+
+echo ""
+echo "- MISC "
+echo " "
+
+
+if [ "$INSTALLER_ENABLED" == "yes" ]; then
+	echo "   installer        yes"
+else
+	echo "   installer        no"
+fi
+
+
+
+
+ 
+
+
+if [ "$EMBEDED_INITRD" == "yes" ]; then
+        echo "   embeded initrd   yes"
+
+else
+        echo "   embeded initrd   no"
+fi
+
+        echo "   kernel version   $KERNEL_MODULES"
+       
+
+if [ "$KERN_INS" == "yes" ]; then
+        echo "   kernel           $KERNEL_FILE"
+
+else
+        echo "   kernel           not found"
+fi
+
+
+
+echo " "
+
+}
+
+ 

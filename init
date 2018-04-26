@@ -26,13 +26,11 @@ transfer_initramfs
 
 
 
-MEMORY=$LIVEKITNAME
+MEMORY=/memory
 CHANGES=$MEMORY/changes
 UNION=$MEMORY/union
 DATAMNT=$MEMORY/data
 BUNDLES=$MEMORY/bundles
-
-
 
 
 
@@ -54,6 +52,22 @@ if grep -q clean  /proc/cmdline; then
   clear
 fi
 
+if [ -f "/kernel-modules.sfs" ];
+then
+echo " mount kernel module "
+
+mount /kernel-modules.sfs /lib/modules
+
+fi
+
+if [ -f "/kernel-firmware.sfs" ];
+then
+echo " mount kernel module "
+
+mount /kernel-firmware.sfs /lib/firmware
+
+fi
+
 
 if grep -q embeded  /proc/cmdline; then
 /linuxrc
@@ -63,11 +77,9 @@ fi
 
 
 
-
 if grep -q live  /proc/cmdline; then
 
 header "//$DISTNAME Live Kit init start"
-
 
 
   # find data dir with filesystem bundles
@@ -94,30 +106,24 @@ header "//$DISTNAME Live Kit init start"
  # installer_ "$UNION"
          
 
-# __________________________________________________
-                                                 
-# only work for kolomonggo linux hirarky         
-# NOT NEEDED FOR OTHER LFS BASED DISTRO 
-                                                                                                                                      debug_shell
- # if grep -q initsysvinit /proc/cmdline; then
- #    echo_green_star
- #    echo "setting up sysvinit for default init"
- #   init_sysvinit "$UNION"
-
- # elif grep -q initsystemd /proc/cmdline; then
- #    echo_green_star
- #    echo "setting up systemd for default init"
- #    init_systemd "$UNION"
- # else
- #    #echo_green_star
- #    #echo ""
- # fi
-# __________________________________________________
-
 	if grep -q install  /proc/cmdline; then
 		
-		header "// running inatallation tool via initramfs "
-                /bin/installer
+		header "// running installation tool via initramfs "
+                cd $UNION
+
+echo "//   Please wait ..." 
+echo "//   creating manifest data "     
+find * -type f > /data-manifest
+echo "//   cleaning uneded did in manifest "               
+sed -i '/dev/d' /data-manifest
+sed -i '/proc/d' /data-manifest
+sed -i '/sys/d' /data-manifest
+sed -i '/run/d' /data-manifest
+sed -i '/tmp/d' /data-manifest
+echo "//    runing installer"
+sleep 2
+
+ /bin/installer
         elif grep -q recovery /proc/cmdline; then
                 /linuxrc
 	
@@ -129,19 +135,11 @@ header "//$DISTNAME Live Kit init start"
 
 
 
-
 else
 
 ########################################################
 ######## end run init for live $DISTNAME ########
 ########################################################
-
-
-
-
-
-
-
 
 
 #######################################################################
@@ -156,26 +154,7 @@ header "//$DISTNAME init start"
 init_function
 do_mount_root
 
-# __________________________________________________
-                                                 
-# only work for kolomonggo linux hirarky         
-# NOT NEEDED FOR OTHER LFS BASED DISTRO 
 
-#  if grep -q initsysvinit /proc/cmdline; then
-#     echo_green_star
-#     echo "setting up sysvinit for default init"
-#     init_sysvinit "/.root"
-#
-#  elif grep -q initsystemd /proc/cmdline; then
-#     echo_green_star
-#     echo "setting up systemd for default init"
-#     init_systemd "/.root"
-#  else
-#     echo_green_star
-#     echo ""
-#  fi
-
-# __________________________________________________
 
 
 header "//$DISTNAME init done, starting $DISTNAME"

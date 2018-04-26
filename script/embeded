@@ -1,0 +1,444 @@
+#!/bin/bash 
+
+
+####################################
+####      Embeded feateure      ####
+#################################### 
+
+embeded_tools(){
+
+
+echo "// installing boot script "
+
+cd $PWDN/bootscript
+make DESTDIR=$TGT_TMP_INITRD install-bootscripts >/dev/null 2>/dev/null
+
+echo "// Configure mdev "
+cat > $TGT_TMP_INITRD/etc/mdev.conf<< "EOF"
+# /etc/mdev/conf
+
+# Devices:
+# Syntax: %s %d:%d %s
+# devices user:group mode
+
+# null does already exist; therefore ownership has to be changed with command
+null    root:root 0666  @chmod 666 $MDEV
+zero    root:root 0666
+grsec   root:root 0660
+full    root:root 0666
+
+random  root:root 0666
+urandom root:root 0444
+hwrandom root:root 0660
+
+# console does already exist; therefore ownership has to be changed with command
+#console        root:tty 0600   @chmod 600 $MDEV && mkdir -p vc && ln -sf ../$MDEV vc/0
+console root:tty 0600 @mkdir -pm 755 fd && cd fd && for x in 0 1 2 3 ; do ln -sf /proc/self/fd/$x $x; done
+
+fd0     root:floppy 0660
+kmem    root:root 0640
+mem     root:root 0640
+port    root:root 0640
+ptmx    root:tty 0666
+
+# ram.*
+ram([0-9]*)     root:disk 0660 >rd/%1
+loop([0-9]+)    root:disk 0660 >loop/%1
+sd[a-z].*       root:disk 0660 */lib/mdev/usbdisk_link
+hd[a-z][0-9]*   root:disk 0660 */lib/mdev/ide_links
+md[0-9]         root:disk 0660
+
+tty             root:tty 0666
+tty[0-9]        root:root 0600
+tty[0-9][0-9]   root:tty 0660
+ttyS[0-9]*      root:tty 0660
+pty.*           root:tty 0660
+vcs[0-9]*       root:tty 0660
+vcsa[0-9]*      root:tty 0660
+
+ttyLTM[0-9]     root:dialout 0660 @ln -sf $MDEV modem
+ttySHSF[0-9]    root:dialout 0660 @ln -sf $MDEV modem
+slamr           root:dialout 0660 @ln -sf $MDEV slamr0
+slusb           root:dialout 0660 @ln -sf $MDEV slusb0
+fuse            root:root  0666
+
+# dri device
+card[0-9]       root:video 0660 =dri/
+
+# alsa sound devices and audio stuff
+pcm.*           root:audio 0660 =snd/
+control.*       root:audio 0660 =snd/
+midi.*          root:audio 0660 =snd/
+seq             root:audio 0660 =snd/
+timer           root:audio 0660 =snd/
+
+adsp            root:audio 0660 >sound/
+audio           root:audio 0660 >sound/
+dsp             root:audio 0660 >sound/
+mixer           root:audio 0660 >sound/
+sequencer.*     root:audio 0660 >sound/
+
+# misc stuff
+agpgart         root:root 0660  >misc/
+psaux           root:root 0660  >misc/
+rtc             root:root 0664  >misc/
+
+# input stuff
+event[0-9]+     root:root 0640 =input/
+mice            root:root 0640 =input/
+mouse[0-9]      root:root 0640 =input/
+ts[0-9]         root:root 0600 =input/
+
+# v4l stuff
+vbi[0-9]        root:video 0660 >v4l/
+video[0-9]      root:video 0660 >v4l/
+
+# dvb stuff
+dvb.*           root:video 0660 */lib/mdev/dvbdev
+
+# load drivers for usb devices
+usbdev[0-9].[0-9]       root:root 0660 */lib/mdev/usbdev
+usbdev[0-9].[0-9]_.*    root:root 0660
+
+# net devices
+tun[0-9]*       root:root 0600 =net/
+tap[0-9]*       root:root 0600 =net/
+
+# zaptel devices
+zap(.*)         root:dialout 0660 =zap/%1
+dahdi!(.*)      root:dialout 0660 =dahdi/%1
+
+# raid controllers
+cciss!(.*)      root:disk 0660 =cciss/%1
+ida!(.*)        root:disk 0660 =ida/%1
+rd!(.*)         root:disk 0660 =rd/%1
+
+sr[0-9]         root:cdrom 0660 @ln -sf $MDEV cdrom 
+
+# hpilo
+hpilo!(.*)      root:root 0660 =hpilo/%1
+
+# xen stuff
+xvd[a-z]        root:root 0660 */lib/mdev/xvd_links
+EOF
+
+
+
+
+echo "// Creating /etc/profile "
+cat > $TGT_TMP_INITRD/etc/profile << "EOF"
+# /etc/profile
+
+# Set the initial path
+export PATH=/bin:/usr/bin
+
+if [ `id -u` -eq 0 ] ; then
+        PATH=/bin:/sbin:/usr/bin:/usr/sbin
+        unset HISTFILE
+fi
+
+# Setup some environment variables.
+export USER=`id -un`
+export LOGNAME=$USER
+export HOSTNAME=`/bin/hostname`
+export HISTSIZE=1000
+export HISTFILESIZE=1000
+export PAGER='/bin/more '
+export EDITOR='/bin/vi'
+
+# End /etc/profile
+EOF
+
+echo "// Creating /etc/inittab"
+cat > $TGT_TMP_INITRD/etc/inittab<< "EOF"
+# /etc/inittab
+
+::sysinit:/etc/rc.d/startup
+
+tty1::once:cat /lib/welcome.txt
+tty1::respawn:/sbin/getty 38400 tty1
+tty2::once:cat /lib/welcome.txt
+tty2::respawn:/sbin/getty 38400 tty2
+tty3::once:cat /lib/welcome.txt
+tty3::respawn:/sbin/getty 38400 tty3
+tty4::once:cat /lib/welcome.txt
+tty4::respawn:/sbin/getty 38400 tty4
+tty5::once:cat /lib/welcome.txt
+tty5::respawn:/sbin/getty 38400 tty5
+tty6::once:cat /lib/welcome.txt
+tty6::respawn:/sbin/getty 38400 tty6
+
+# Put a getty on the serial line (for a terminal).  Uncomment this line if
+# you're using a serial console on ttyS0, or uncomment and adjust it if using a
+# serial console on a different serial port.
+#::respawn:/sbin/getty -L ttyS0 115200 vt100
+
+::shutdown:/etc/rc.d/shutdown
+::ctrlaltdel:/sbin/reboot
+EOF
+
+echo "// Creating /etc/password"
+cat > $TGT_TMP_INITRD/etc/passwd<< "EOF"
+root::0:0:root:/root:/bin/bash
+
+bin:x:1:1:bin:/bin:/bin/false  
+daemon:x:2:6:daemon:/sbin:/bin/false
+adm:x:3:16:adm:/var/adm:/bin/false
+lp:x:10:9:lp:/var/spool/lp:/bin/false
+mail:x:30:30:mail:/var/mail:/bin/false
+news:x:31:31:news:/var/spool/news:/bin/false
+uucp:x:32:32:uucp:/var/spool/uucp:/bin/false
+operator:x:50:0:operator:/root:/bin/bash
+postmaster:x:51:30:postmaster:/var/spool/mail:/bin/false
+nobody:x:65534:65534:nobody:/:/bin/false
+
+
+
+EOF
+
+
+echo "// Creating /etc/group"
+cat > $TGT_TMP_INITRD/etc/group<< "EOF"
+root:x:0:
+bin:x:1:
+sys:x:2:
+kmem:x:3:
+tty:x:4:
+tape:x:5:
+daemon:x:6:
+floppy:x:7:
+disk:x:8:
+lp:x:9:
+dialout:x:10:
+audio:x:11:
+video:x:12:
+utmp:x:13:
+usb:x:14:
+cdrom:x:15:
+adm:x:16:root,adm,daemon
+console:x:17:
+cdrw:x:18:
+mail:x:30:mail
+news:x:31:news
+uucp:x:32:uucp
+users:x:100:
+nogroup:x:65533:
+nobody:x:65534:
+
+EOF
+
+echo "// Creating /etc/fstab"
+cat > $TGT_TMP_INITRD/etc/fstab << "EOF"
+# file-system  mount-point  type   options          dump  fsck
+EOF
+
+
+
+
+echo "// Setting Hostname"
+echo "$DISTNAME" > $TGT_TMP_INITRD/etc/HOSTNAME
+
+
+touch $TGT_TMP_INITRD/var/log/lastlog
+chmod -v 664 $TGT_TMP_INITRD/var/log/lastlog >/dev/null 2>/dev/null 
+
+cat > $TGT_TMP_INITRD/etc/hosts<< "EOF"
+
+# Begin /etc/hosts (no network card version)
+
+127.0.0.1 [<HOSTNAME>.example.org] [HOSTNAME] localhost
+
+# End /etc/hosts (no network card version)
+EOF
+
+
+mkdir -pv $TGT_TMP_INITRD/etc/network/if-{post-{up,down},pre-{up,down},up,down}.d >/dev/null 2>/dev/null
+mkdir -pv $TGT_TMP_INITRD/usr/share/udhcpc >/dev/null 2>/dev/null
+
+
+cat > $TGT_TMP_INITRD/etc/network/interfaces << "EOF"
+auto eth0
+iface eth0 inet dhcp
+EOF
+
+cat > $TGT_TMP_INITRD/usr/share/udhcpc/default.script << "EOF"
+#!/bin/sh
+# udhcpc Interface Configuration
+# Based on http://lists.debian.org/debian-boot/2002/11/msg00500.html
+# udhcpc script edited by Tim Riker <Tim@Rikers.org>
+
+[ -z "$1" ] && echo "Error: should be called from udhcpc" && exit 1
+
+RESOLV_CONF="/etc/resolv.conf"
+[ -n "$broadcast" ] && BROADCAST="broadcast $broadcast"
+[ -n "$subnet" ] && NETMASK="netmask $subnet"
+
+case "$1" in
+        deconfig)
+                /sbin/ifconfig $interface 0.0.0.0
+                ;;
+
+        renew|bound)
+                /sbin/ifconfig $interface $ip $BROADCAST $NETMASK
+
+                if [ -n "$router" ] ; then
+                        while route del default gw 0.0.0.0 dev $interface ; do
+                                true
+                        done
+
+                        for i in $router ; do
+                                route add default gw $i dev $interface
+                        done
+                fi
+
+                echo -n > $RESOLV_CONF
+                [ -n "$domain" ] && echo search $domain >> $RESOLV_CONF
+                for i in $dns ; do
+                        echo nameserver $i >> $RESOLV_CONF
+                done
+                ;;
+esac
+
+exit 0
+EOF
+
+chmod +x $TGT_TMP_INITRD/usr/share/udhcpc/default.script
+
+
+
+
+
+cd  $PWDN/$WORK_DIR
+
+echo "// extracting $ZLIB_FILE"
+      $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$ZLIB_FILE 
+       cd zlib*
+echo "// configuring $ZLIB_FILE"
+     $TERMINAL_TOOLS  ./configure --shared
+echo "// compiling $ZLIB_FILE"
+       $TERMINAL_TOOLS make
+echo "// installing $ZLIB_FILE"
+       $TERMINAL_TOOLS make prefix=$TGT_TMP_INITRD  install 
+
+
+
+
+
+
+  cd  $PWDN/$WORK_DIR
+
+echo "// extracting $NETPLUG_FILE"
+      $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$NETPLUG_FILE 
+       cd netplug*
+echo "// configuring $NETPLUG_FILE"
+      $TERMINAL_TOOLS patch -Np1 -i ../netplug-1.2.9.2-fixes-1.patch
+
+echo "// compiling $NETPLUG_FILE"
+       $TERMINAL_TOOLS make
+echo "// installing $NETPLUG_FILE"
+       $TERMINAL_TOOLS make DESTDIR=$TGT_TMP_INITRD  install 
+       cd $PWDN/bootscript
+       make DESTDIR=$TGT_TMP_INITRD install-netplug >/dev/null 2>/dev/null
+ 
+ cd  $PWDN/$WORK_DIR
+
+
+
+	echo "// extracting $DROPBEAR_FILE"
+	        $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$DROPBEAR_FILE 
+       		cd dropbear*
+	echo "// configuring $DROPBEAR_FILE"
+		sed -i 's/.*mandir.*//g' Makefile.in >/dev/null 2>/dev/null
+        	$TERMINAL_TOOLS ./configure --prefix=/usr
+
+	echo "// compiling $DROPBEAR_FILE"
+       		$TERMINAL_TOOLS make MULTI=1 PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp"
+	echo "// installing $DROPBEAR_FILE"
+       		$TERMINAL_TOOLS make MULTI=1 \
+                PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp" \
+                install DESTDIR=$TGT_TMP_INITRD
+
+                install -dv $TGT_TMP_INITRD/etc/dropbear >/dev/null 2>/dev/null
+                make DESTDIR=$TGT_TMP_INITRD install-dropbear >/dev/null 2>/dev/null
+
+  cd  $PWDN/$WORK_DIR
+
+
+
+
+echo "// extracting $WT_FILE"
+      $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$WT_FILE 
+       cd wireless*
+
+echo "// compiling $WT_FILE"
+       $TERMINAL_TOOLS make PREFIX=/usr
+echo "// installing $WT_FILE"
+       $TERMINAL_TOOLS make install  prefix=$TGT_TMP_INITRD  
+
+ cd  $PWDN/$WORK_DIR
+
+cp -pR $PWDN/dialog/dialog* $SRC_PKG_DIR  >/dev/null 2>/dev/null
+  cd  $PWDN/$WORK_DIR
+echo "// extracting $DIALOG_FILE"
+      $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$DIALOG_FILE 
+       cd dialog*
+echo "// configuring $DIALOG_FILE"
+     $TERMINAL_TOOLS  ./configure --prefix=/usr
+  $TERMINAL_TOOLS ./configure --prefix=/usr
+echo "// compiling $DIALOG_FILE"
+       $TERMINAL_TOOLS make PREFIX=/usr
+echo "// installing $DIALOG_FILE"
+       $TERMINAL_TOOLS make DESTDIR=$TGT_TMP_INITRD  install  
+
+ cd  $PWDN/$WORK_DIR
+
+
+
+
+ cd  $PWDN/$WORK_DIR
+
+
+
+	echo "// extracting $DROPBEAR_FILE"
+	        $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$DROPBEAR_FILE 
+       		cd dropbear*
+	echo "// configuring $DROPBEAR_FILE"
+		sed -i 's/.*mandir.*//g' Makefile.in >/dev/null 2>/dev/null
+        	$TERMINAL_TOOLS ./configure --prefix=/usr
+
+	echo "// compiling $DROPBEAR_FILE"
+       		$TERMINAL_TOOLS make MULTI=1 PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp"
+	echo "// installing $DROPBEAR_FILE"
+       		$TERMINAL_TOOLS make MULTI=1 \
+                PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp" \
+                install DESTDIR=$TGT_TMP_INITRD
+
+                install -dv $TGT_TMP_INITRD/etc/dropbear >/dev/null 2>/dev/null
+                make DESTDIR=$TGT_TMP_INITRD install-dropbear >/dev/null 2>/dev/null
+
+  cd  $PWDN/$WORK_DIR
+
+}
+
+
+kernel_module(){
+
+mkdir -vp $PWDN/$WORK_DIR/kernel/modules/$KERNEL_MODULES  >/dev/null 2>/dev/null
+
+
+
+cp -vpR /lib/modules/$KERNEL_MODULES/* $PWDN/$WORK_DIR/kernel/modules/$KERNEL_MODULES >/dev/null 2>/dev/null
+
+
+cd $PWDN/$WORK_DIR/kernel/modules >/dev/null 2>/dev/null
+mksquashfs . $PWDN/$WORK_DIR/kernel-modules.sfs  >/dev/null 2>/dev/null
+
+cd  $PWDN/$WORK_DIR >/dev/null 2>/dev/null
+cp -vpR  $PWDN/$WORK_DIR/kernel-modules.sfs $TGT_TMP_INITRD  >/dev/null 2>/dev/null
+
+
+}
+
+###########################################
+####      End of Embeded feateure      ####
+########################################### 
