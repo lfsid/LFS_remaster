@@ -1,0 +1,3 @@
+#!/bin/bash
+make -C menu 
+menu/mconf Config.in lib/.config 

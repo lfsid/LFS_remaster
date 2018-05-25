@@ -308,7 +308,7 @@ chmod +x $TGT_TMP_INITRD/usr/share/udhcpc/default.script
 
 
 
-cd  $PWDN/$WORK_DIR
+cd  $WORK_DIR
 
 echo "// extracting $ZLIB_FILE"
       $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$ZLIB_FILE 
@@ -325,7 +325,7 @@ echo "// installing $ZLIB_FILE"
 
 
 
-  cd  $PWDN/$WORK_DIR
+  cd  $WORK_DIR
 
 echo "// extracting $NETPLUG_FILE"
       $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$NETPLUG_FILE 
@@ -340,28 +340,11 @@ echo "// installing $NETPLUG_FILE"
        cd $PWDN/bootscript
        make DESTDIR=$TGT_TMP_INITRD install-netplug >/dev/null 2>/dev/null
  
- cd  $PWDN/$WORK_DIR
+ cd  $WORK_DIR
 
 
 
-	echo "// extracting $DROPBEAR_FILE"
-	        $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$DROPBEAR_FILE 
-       		cd dropbear*
-	echo "// configuring $DROPBEAR_FILE"
-		sed -i 's/.*mandir.*//g' Makefile.in >/dev/null 2>/dev/null
-        	$TERMINAL_TOOLS ./configure --prefix=/usr
-
-	echo "// compiling $DROPBEAR_FILE"
-       		$TERMINAL_TOOLS make MULTI=1 PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp"
-	echo "// installing $DROPBEAR_FILE"
-       		$TERMINAL_TOOLS make MULTI=1 \
-                PROGRAMS="dropbear dbclient dropbearkey dropbearconvert scp" \
-                install DESTDIR=$TGT_TMP_INITRD
-
-                install -dv $TGT_TMP_INITRD/etc/dropbear >/dev/null 2>/dev/null
-                make DESTDIR=$TGT_TMP_INITRD install-dropbear >/dev/null 2>/dev/null
-
-  cd  $PWDN/$WORK_DIR
+  cd  $WORK_DIR
 
 
 
@@ -375,10 +358,10 @@ echo "// compiling $WT_FILE"
 echo "// installing $WT_FILE"
        $TERMINAL_TOOLS make install  prefix=$TGT_TMP_INITRD  
 
- cd  $PWDN/$WORK_DIR
+ cd  $WORK_DIR
 
 cp -pR $PWDN/dialog/dialog* $SRC_PKG_DIR  >/dev/null 2>/dev/null
-  cd  $PWDN/$WORK_DIR
+  cd  $WORK_DIR
 echo "// extracting $DIALOG_FILE"
       $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$DIALOG_FILE 
        cd dialog*
@@ -389,13 +372,13 @@ echo "// compiling $DIALOG_FILE"
        $TERMINAL_TOOLS make PREFIX=/usr
 echo "// installing $DIALOG_FILE"
        $TERMINAL_TOOLS make DESTDIR=$TGT_TMP_INITRD  install  
-
- cd  $PWDN/$WORK_DIR
-
-
+       $TERMINAL_TOOLS make DESTDIR=$TGT_TMP_INITRD/pkg/dialog  install
+ cd  $WORK_DIR
 
 
- cd  $PWDN/$WORK_DIR
+
+
+ cd  $WORK_DIR
 
 
 
@@ -416,25 +399,25 @@ echo "// installing $DIALOG_FILE"
                 install -dv $TGT_TMP_INITRD/etc/dropbear >/dev/null 2>/dev/null
                 make DESTDIR=$TGT_TMP_INITRD install-dropbear >/dev/null 2>/dev/null
 
-  cd  $PWDN/$WORK_DIR
+  cd  $WORK_DIR
 
 }
 
 
 kernel_module(){
 
-mkdir -vp $PWDN/$WORK_DIR/kernel/modules/$KERNEL_MODULES  >/dev/null 2>/dev/null
+mkdir -vp $WORK_DIR/kernel/modules/$KERNEL_MODULES  >/dev/null 2>/dev/null
 
 
 
-cp -vpR /lib/modules/$KERNEL_MODULES/* $PWDN/$WORK_DIR/kernel/modules/$KERNEL_MODULES >/dev/null 2>/dev/null
+cp -vpR /lib/modules/$KERNEL_MODULES/* $WORK_DIR/kernel/modules/$KERNEL_MODULES >/dev/null 2>/dev/null
 
 
-cd $PWDN/$WORK_DIR/kernel/modules >/dev/null 2>/dev/null
-mksquashfs . $PWDN/$WORK_DIR/kernel-modules.sfs  >/dev/null 2>/dev/null
+cd $WORK_DIR/kernel/modules >/dev/null 2>/dev/null
+mksquashfs . $WORK_DIR/kernel-modules.sfs  >/dev/null 2>/dev/null
 
-cd  $PWDN/$WORK_DIR >/dev/null 2>/dev/null
-cp -vpR  $PWDN/$WORK_DIR/kernel-modules.sfs $TGT_TMP_INITRD  >/dev/null 2>/dev/null
+cd  $WORK_DIR >/dev/null 2>/dev/null
+cp -vpR  $WORK_DIR/kernel-modules.sfs $TGT_TMP_INITRD  >/dev/null 2>/dev/null
 
 
 }

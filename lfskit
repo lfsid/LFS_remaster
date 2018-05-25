@@ -2,17 +2,18 @@
 
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
-   exit 1
+    echo "This script must be run as root" 
+	exit 1
 fi
 
+. script/grub-osprober
 . script/download
 . script/embeded
 . script/buildiso
 . script/remaster
 . script/function
 . script/ceck-depend
-. lib/.config
+
 
 KERNEL_MODULES="$(uname -r)"
 
@@ -26,16 +27,52 @@ readonly VERSION="1.0"
 
 
 
+
+
 ############################################################################################################################################
 #########   LIVECD BUILDER /  ##############################################################################################################
 ######### remastering funtion ##############################################################################################################
 ############################################################################################################################################
 
 # on development
+build_initrd(){
+     download_function
+                          main_tools
+                          
+                          if [ "$EMBEDED_INITRD" == "y" ]; then
+	                        echo "    -- enabled embeded initrd"
+                                embeded_tools
+                          else
+	                        echo "    -- embeded initrd not enabled"
+                          fi
+                          init_created
+}
+
+
+build_live(){
+
+
+
+	
+        greating_remaster
+	build_dir
+	copying_baseiso
+	copying_root
+        copying_system
+        squashing_
+        copying_squashfs
+        deploy_sys_iso_linux
+
+
+
+}
+
+
+
 
 ############################################################################################################################################
-#########    END OF LIVECD BUILDER /   ##############################################################################################################
-#########     remastering funtion      ##############################################################################################################
+#########    END OF LIVECD BUILDER /   #####################################################################################################
+#########     remastering funtion      #####################################################################################################
 ############################################################################################################################################
 
 
@@ -55,15 +92,24 @@ main_tools(){
 
 
 
-rm -rf /$PWDN/$WORK_DIR/*
 
-rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
-mkdir $TGT_TMP_INITRD >/dev/null 2>/dev/nul
+#### find and add if not exist   SRC_PKG_DIR
+
+
+####################################
+
+ 
+rm -rf /$WORK_DIR/*  >/dev/null 2>/dev/null
+
+rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/null
+mkdir $TGT_TMP_INITRD >/dev/null 2>/dev/null
+mkdir $WORK_DIR >/dev/null 2>/dev/null
+
   cd $TGT_TMP_INITRD
 echo "// creating root file system in newinit"
   mkdir bin boot dev proc sys run var usr opt etc lib >/dev/null 2>/dev/null
   cd /
-  mkdir -pv $TGT_TMP_INITRD/{bin,boot,etc/{opt,sysconfig},home,lib/firmware,lib/modules,mnt,opt} >/dev/null 2>/dev/null
+  mkdir -pv $TGT_TMP_INITRD/{pkg,bin,boot,etc/{opt,sysconfig},home,lib/firmware,lib/modules,mnt,opt} >/dev/null 2>/dev/null
   mkdir -pv $TGT_TMP_INITRD/{media/{floppy,cdrom},srv,var} >/dev/null 2>/dev/null
   install -dv -m 0750 $TGT_TMP_INITRD/root >/dev/null 2>/dev/null
   install -dv -m 1777 $TGT_TMP_INITRD/tmp $TGT_TMP_INITRD/var/tmp >/dev/null 2>/dev/null
@@ -94,9 +140,11 @@ fi
   mkdir -pv $TGT_TMP_INITRD/var/{opt,cache,lib/{color,misc,locate},local} >/dev/null 2>/dev/null
 
 
+#####
+# list lib wiil be to copy 
+#####
 
-
-	echo "// copying some lib from system"
+	#echo "// copying some lib from system"
 
  	cp  -pR  /lib/libreadline* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	cp  -pR /lib/libhistory* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
@@ -114,7 +162,7 @@ fi
  	cp -pR  /lib/libz* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	cp -pR  /lib/liblzma* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	cp -pR  /lib/libacl* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
- 	cp -pR  /lib/libattr* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+	cp -pR  /lib/libattr* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	cp -pR  /lib/libsmart* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	# cp  /lib/libext2fs* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	p -pR  /lib/libcom_err* $TGT_TMP_INITRD/lib  >/dev/null 2>/dev/null
@@ -125,14 +173,60 @@ fi
  	cp -pR  /usr/lib/libcurl* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	cp -pR /usr/lib/libstdc*.so* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
  	cp -pR  /usr/lib/libgcc* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+#####
+#####
+#####
+
+
+
+LIB_LIST="libmpfr libreadline libhistory librt ibdl libc ld libcom_err libe2p libpthread libm  libz liblzma libacl libattr libsmart libt libcap libntfs  libgcc libstdc libcurl libgmp"
+
+
+
+
+
+echo_green_star
+echo -ne "copying some liblary from system   >" | tr -s "/" >&2
+for fileslib in $LIB_LIST
+do
+      echo -ne ">" >&2
+sleep 0.1
+
+ if [ -e "/lib/$fileslib" ]; then
+        cp -pRv /lib/$fileslib* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+elif [ -e "/lib64/$fileslib" ]; then
+        cp -pRv /lib64/$fileslib* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+elif [ -e "/usr/lib/$fileslib" ]; then
+        cp -pRv /usr/lib/$fileslib* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+elif [ -e "/usr/lib64/$fileslib" ]; then
+        cp -pRv /usr/lib64/$fileslib* $TGT_TMP_INITRD/lib >/dev/null 2>/dev/null
+
+
+else 
+    echo "$fileslib File does not exist"  >/dev/null 2>/dev/null
+fi 
+done
+
+
+
+
+
  	cp -pR /lib/udev/* $TGT_TMP_INITRD/lib/udev >/dev/null 2>/dev/null
+
+echo ""
+
 
 filesystemd="/lib/systemd/systemd"
 if [ ! -f "$filesystemd" ]
 then
-    echo "    -- no Systemd lib"
+    echo "    -- Systemd lib no "
     
 else
+    echo "    -- Systemd lib yes"
 
     mkdir $TGT_TMP_INITRD/lib/systemd >/dev/null 2>/dev/null
     cp -pR /lib/systemd/*systemd*.so* $TGT_TMP_INITRD/lib/systemd >/dev/null 2>/dev/null
@@ -141,7 +235,7 @@ fi
 
 
 
-FILE_LIST="setsid mksquashfs rm cp mke2fs modprobe touch ldd lsblk cfdisk egrep mkntfs mkfs "
+FILE_LIST="setsid mksquashfs rm cp mke2fs modprobe awk touch ldd lsblk cfdisk egrep mkntfs mkfs wc printf bc "
 
 
 
@@ -180,7 +274,7 @@ echo ""
 ######################
 
   cp -pR /usr/bin/lynx $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
-
+  cp -pR $PWDN/custom $TGT_TMP_INITRD/ 2>/dev/null
 
   cp -pR /usr/bin/nano $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
   cp -pR /usr/lib/libmagic*  $TGT_TMP_INITRD/usr/lib >/dev/null 2>/dev/null
@@ -195,8 +289,7 @@ echo ""
 cd $TGT_TMP
 
   echo "// removing uneeded directory and file  "
-  rm -vrf $TGTUDEV/include  >/dev/null 2>/dev/null
-  rm -vrf $TGTUDEV/share >/dev/null 2>/dev/null
+
   rm -vrf $TGT_TMP_INITRD/lib/udev/ >/dev/null 2>/dev/null
 
 
@@ -216,9 +309,9 @@ cd $TGT_TMP
 
 
 
- cd  $PWDN/$WORK_DIR
-    mkdir -pv  $PWDN/$WORK_DIR   >/dev/null 2>/dev/null
-    mkdir -pv $PWDN/$WORK_DIR/installed   >/dev/null 2>/dev/null
+ cd  $WORK_DIR
+    mkdir -pv  $WORK_DIR   >/dev/null 2>/dev/null
+    mkdir -pv $WORK_DIR/installed   >/dev/null 2>/dev/null
 
   echo "// extracting util linux"
        $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$UTILS_LINUX_FILE 
@@ -240,14 +333,14 @@ cd $TGT_TMP
   echo "// compiling util linux"
        $TERMINAL_TOOLS make
   echo "// installing util linux "
-       $TERMINAL_TOOLS make DESTDIR=$PWDN/$WORK_DIR/installed/util-linux  install 
-       cp -pRv $PWDN/$WORK_DIR/installed/util-linux/lib/* $TGT_TMP_INITRD/lib   >/dev/null 2>/dev/null
-       cp -pRv $PWDN/$WORK_DIR/installed/util-linux/sbin/cfdisk $TGT_TMP_INITRD/bin   >/dev/null 2>/dev/null
-       cp -pRv $PWDN/$WORK_DIR/installed/util-linux/bin/lsblk $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
+       $TERMINAL_TOOLS make DESTDIR=$WORK_DIR/installed/util-linux  install 
+       cp -pRv $WORK_DIR/installed/util-linux/lib/* $TGT_TMP_INITRD/lib   >/dev/null 2>/dev/null
+       cp -pRv $WORK_DIR/installed/util-linux/sbin/cfdisk $TGT_TMP_INITRD/bin   >/dev/null 2>/dev/null
+       cp -pRv $WORK_DIR/installed/util-linux/bin/lsblk $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
 
 	
 
-  cd  $PWDN/$WORK_DIR
+  cd  $WORK_DIR
 
 
 echo "// extracting e2fsprogs"
@@ -268,22 +361,22 @@ echo "// extracting e2fsprogs"
   echo "// compiling e2fsprogs"
        $TERMINAL_TOOLS make
   echo "// installing e2fsprogs"
-       $TERMINAL_TOOLS make DESTDIR=$PWDN/$WORK_DIR/installed/e2fs  install 
-       $TERMINAL_TOOLS make DESTDIR=$PWDN/$WORK_DIR/installed/e2fs  install-libs
-       chmod -v u+w $PWDN/$WORK_DIR/installed/e2fs/usr/lib/{libcom_err,libe2p,libext2fs,libss}.a  >/dev/null 2>/dev/null
+       $TERMINAL_TOOLS make DESTDIR=$WORK_DIR/installed/e2fs  install 
+       $TERMINAL_TOOLS make DESTDIR=$WORK_DIR/installed/e2fs  install-libs
+       chmod -v u+w $WORK_DIR/installed/e2fs/usr/lib/{libcom_err,libe2p,libext2fs,libss}.a  >/dev/null 2>/dev/null
        
-       cp -pRv $PWDN/$WORK_DIR/installed/e2fs/etc/* $TGT_TMP_INITRD/etc  >/dev/null 2>/dev/null
-       cp -pRv $PWDN/$WORK_DIR/installed/e2fs/lib/* $TGT_TMP_INITRD/lib  >/dev/null 2>/dev/null
+       cp -pRv $WORK_DIR/installed/e2fs/etc/* $TGT_TMP_INITRD/etc  >/dev/null 2>/dev/null
+       cp -pRv $WORK_DIR/installed/e2fs/lib/* $TGT_TMP_INITRD/lib  >/dev/null 2>/dev/null
        
-       cp -pRv $PWDN/$WORK_DIR/installed/e2fs/usr/lib/* $TGT_TMP_INITRD/usr/lib  >/dev/null 2>/dev/null
+       cp -pRv $WORK_DIR/installed/e2fs/usr/lib/* $TGT_TMP_INITRD/usr/lib  >/dev/null 2>/dev/null
        
-       cp -pRv $PWDN/$WORK_DIR/installed/e2fs/usr/sbin/* $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
+       cp -pRv $WORK_DIR/installed/e2fs/usr/sbin/* $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
        
-       cp -pR $PWDN/$WORK_DIR/installed/e2fs/sbin/* $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
+       cp -pR $WORK_DIR/installed/e2fs/sbin/* $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
       
 
 
-  cd  $PWDN/$WORK_DIR
+  cd  $WORK_DIR
 
 
   echo "// extracting ncurses"
@@ -305,7 +398,7 @@ echo "// extracting e2fsprogs"
        $TERMINAL_TOOLS make DESTDIR=$TGT_TMP_INITRD  install 
 
 
-  cd  $PWDN/$WORK_DIR
+  cd  $WORK_DIR
 
   echo "// extracting busybox "
 	tar -xf $SRC_PKG_DIR/$BUSYBOX_FILE >/dev/null 2>/dev/null
@@ -362,6 +455,12 @@ echo "// extracting e2fsprogs"
         cp -v examples/depmod.pl $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
         chmod -v 755 $TGT_TMP_INITRD/bin/depmod.pl  >/dev/null 2>/dev/null
 
+
+
+
+os_prober # look at script/grub-osprober
+
+
 cd $PWDN
 
 
@@ -385,16 +484,30 @@ init_created(){
 
 # add if command 
 
-if [ "$KERNEL_MODULE_BUILDIN" == "yes" ]; then
+if [ "$KERNEL_MODULE_BUILDIN" == "y" ]; then
 
 
 	kernel_module
 
 
 fi 
- cp -v /bin/cp $TGT_TMP_INITRD/bin/cp-gnu >/dev/null 2>/dev/null
+if [ -e "/bin/cp" ]; then
+	 cp -v /bin/cp $TGT_TMP_INITRD/bin/cp-gnu >/dev/null 2>/dev/null
+elif [ -e "s/bin/cp" ]; then
+         cp -v /sbin/cp $TGT_TMP_INITRD/bin/cp-gnu >/dev/null 2>/dev/null
+else 
+
+	echo "cp File does not exist"  >/dev/null 2>/dev/null
+
+fi 
+
+
+
 
 cd $TGT_TMP
+
+
+ cp $PWDN/pkg/lfs-tools $TGT_TMP_INITRD/pkg >/dev/null 2>/dev/null
 
 
 chmod -v  755 $TGT_TMP_INITRD/lib/bootsplash    >/dev/null 2>/dev/null
@@ -406,13 +519,13 @@ chmod -v  755 $TGT_TMP_INITRD/lib/insinit  >/dev/null 2>/dev/null
 chmod -v  755 $TGT_TMP_INITRD/lib/livekitlib   >/dev/null 2>/dev/null        
 chmod -v  755 $TGT_TMP_INITRD/lib/run >/dev/null 2>/dev/null
 chmod -v  755 $TGT_TMP_INITRD/init  >/dev/null 2>/dev/null 
-# installer detect dialog installed or no 
-if [ "$INSTALLER_ENABLED" == "yes" ]; then
-    
-            echo "// installing installer "
- 	    cp $PWDN/installer/installer $TGT_TMP_INITRD/bin
-            chmod -v  755 $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
 
+if [ "$INSTALLER_ENABLED" == "y" ]; then
+    
+            echo "// installing installer and tools "
+ 	    cp $PWDN/installer/installer $TGT_TMP_INITRD/bin >/dev/null 2>/dev/null
+            chmod -v  755 $TGT_TMP_INITRD/bin  >/dev/null 2>/dev/null
+            
 fi
 
 cd $TGT_TMP
@@ -422,13 +535,14 @@ pushd newinit   >/dev/null 2>/dev/null
 find . | cpio -o -H newc -F ../initrd   >/dev/null 2>/dev/null
 popd  >/dev/null 2>/dev/null
 gzip -9 initrd  >/dev/null 2>/dev/null
-mv -vf initrd.gz /boot/initrd.img-$(uname -r)-build >/dev/null 2>/dev/null
+mv -vf initrd.gz $INITRD_FILE >/dev/null 2>/dev/null
 
 echo "// removing temp dir "
 #rm -rf $TGT_TMP_INITRD >/dev/null 2>/dev/nul
 echo "// -- DONE --"
-exit 0
+
 }
+
 
 ###################################
 ########## end of initrd ########## 
@@ -452,8 +566,10 @@ print_help() {
         echo -e $white"usage: `basename $COMMAND` [options]"
 	echo "options"
         echo ""
+	echo " --remastering        remastering running LFS based distro and build iniramfs"
+	echo ""
         echo " --build-initrd       build initramfs" 
-	echo " --remastering        remastering running LFS based distro"
+	echo " --config             edit .config file in $PWDN/lib "
 	echo ""
         echo " -h,   --help      Show the help"
 	echo " -v,   --version   Show the version"
@@ -475,8 +591,8 @@ parse_options() {
 				--grabing-sources)
 					SETUP_SOURCES="yes"
 					;;
-				--build-kernel)
-					SETUP_KERNEL="yes"
+				--config)
+					SETUP_CONFIG="yes"
 					;;
 				--prepare)
 					SETUP_PREPARE="yes"
@@ -512,6 +628,9 @@ parse_options_() {
 				--remastering)
 					SETUP_REMASTERING="yes"
                                         ;;
+				--config)
+					SETUP_CONFIG="yes"
+					;;
 				
 			esac
 			shift
@@ -526,16 +645,9 @@ main () {
 	
         if [ "$SETUP_INITRD" == "yes" ]; then
 		 if [ "$ALL_LIST" == "--build-initrd" ]; then
-                          download_function
-                          main_tools
-                          
-                          if [ "$EMBEDED_INITRD" == "yes" ]; then
-	                        echo "    -- enabled embeded initrd"
-                                embeded_tools
-                          else
-	                        echo "    -- embeded initrd not enabled"
-                          fi
-                          init_created
+			ceck_depend
+			check_sumary
+                     	build_initrd
                  else 
                         echo -e $red ""
                         echo "Option Error"
@@ -544,7 +656,17 @@ main () {
                  fi
         elif [ "$SETUP_REMASTERING" == "yes" ]; then
 		 if [ "$ALL_LIST" == "--remastering" ]; then
-                          remaster_
+ 			ceck_depend
+			check_sumary
+			if [ "$AUFS_MODULE" == "no" ]; then
+				echo ""
+				echo "//   please build kernel with aufs support"
+                		exit
+ 
+        		fi 
+			 
+                          build_initrd
+                          build_live
                  else 
                         echo -e $red ""
                         echo "Option Error"
@@ -552,7 +674,20 @@ main () {
                         print_help
                  fi
                                   
-               
+        elif [ "$SETUP_CONFIG" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--config" ]; then
+			cd menu 
+			make clean
+			make -C .
+			cd ../lib
+			../menu/mconf Config.in .config
+
+                 else 
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --remastering  with another Option"
+                        print_help
+                 fi               
       
 
        
@@ -560,22 +695,9 @@ main () {
   	 
 	fi
 }
-#####################################
-########## end of function ##########
-#####################################
-
-#################################################################
-####################### main line program #######################
-#################################################################
 
 
-
-parse_options_ "$@"
-ceck_depend 
-
-rm -rf $TGT_TMP_INITRD
-rm -rf $PWDN/$WORK_DIR/*
-
+check_sumary(){
  if [ "$ISOBURN" == "no" ]; then
  	err_depend
  elif [ "$SQUASHFS" == "no" ]; then
@@ -598,6 +720,35 @@ rm -rf $PWDN/$WORK_DIR/*
 
 #clear
 fi
+}
+#####################################
+########## end of function ##########
+#####################################
+
+#################################################################
+####################### main line program #######################
+#################################################################
+
+
+
+parse_options_ "$@"
+
+if [ -f "lib/.config" ];
+then
+	. lib/.config
+
+else
+	echo "//  .config not found , creating it " 
+        cd menu 
+	make clean
+	make -C .
+	cd ../lib
+	../menu/mconf Config.in .config
+	exit
+fi
+
+
+
 
 
  main "$@"

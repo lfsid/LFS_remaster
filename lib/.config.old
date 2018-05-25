@@ -79,7 +79,7 @@ NCURSES_SRC="http://ftp.gnu.org/gnu//ncurses/$NCURSES_FILE	"
 # Zlib
 #
 ZLIB_FILE="zlib-1.2.8.tar.gz"
-ZLIB_SRC="http://downloads.sourceforge.net/libpng/$ZLIB_FILE"
+ZLIB_SRC="http://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.43.4/$EFS_FILE"
 
 #
 # netplug + patch

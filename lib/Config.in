@@ -1,0 +1,236 @@
+
+	
+menu "--- General Settings"
+	config LIVEKITNAME
+		string "live kit name "
+		default "dracOs"
+		help
+			#-- live kit name and folder name in dist.iso/$LIVEKITNAME
+	config VER_OS
+		string "Version of OS "
+		default "v3"
+		help
+			#-- OS version 
+	config CODE_NAME
+		string "code name "
+		default "kunti"
+		help
+			#-- code name for distro
+	comment " "
+	config TGT_TMP
+		string "temp work dir "
+		default "/tmp"
+		help
+			#-- location temp working dir for compiling 
+	config WORK_DIR
+		string "build dir"
+		default "$TGT_TMP/work-pkg"
+		help
+			#-- Targret workdir 
+                        # $TGT_TMP is temp work dir , please don't edit it if you don't 
+			# know what are u doing 
+			# you only can edit after $TGT_TMP/
+	config SRC_PKG_DIR
+		string "sources pkg dir "
+		default "/sources"
+		help
+			#-- location of source file  
+	config TGT_REMASTER
+		string "target temporary remaster file  "
+		default "/fakeroot"
+		help
+			#-- 
+ 	config TGT_TMP_INITRD
+		string "initramfs temp build dir"
+		default "$TGT_TMP/newinit"
+		help
+			#-- temporary initramfs build dir 
+                        # $TGT_TMP is temp work dir , please don't edit it if you don't 
+			# know what are u doing 
+			# you only can edit after $TGT_TMP/
+        config TGT_LIVE_DISK
+                string "initramfs build dit"
+		default "$TGT_REMASTER/live/$(uname -m)"
+		help
+			#-- LIVE disk location dir
+			#
+                        # $TGT_TMP is temp work dir , please don't edit it if you don't 
+			# know what are u doing 
+			# you only can edit after TGT_REMASTER/
+	config TGT_SQUASHFS
+		string " Squashfs fake rootlocation "
+		default "$TGT_REMASTER/squash"
+		help
+			#-- location system will be copied to for make squashfs file
+			#
+                        # $TGT_TMP is temp work dir , please don't edit it if you don't 
+			# know what are u doing 
+			# you only can edit after TGT_REMASTER/
+	config BEXT
+		string "extension for squashfs file  "
+		default "sfs"
+		help
+			#-- extention for squashfs file 
+	config TGT_SQUASHFS_FILE
+		string "squashfs file name & location  "
+		default "$TGT_REMASTER/core.$BEXT"
+		help
+			#-- the name aof squashfsfile and location  
+                        #
+                        # $TGT_TMP is temp work dir , please don't edit it if you dont 
+			# know what are u doing 
+			# you only can edit after TGT_REMASTER/
+                        # and plese don't edit $BEXT
+
+
+
+
+#--- End General Settings
+endmenu
+
+menu "--- initramfs feature"
+	config TERMINAL_TOOLS
+		string "secondary terminal Il'be use (See Help)  "
+		default "xterm -e " 
+		help
+			#-- terminal and execute comman from terminal 
+                        #   example xterm -e (xterm is terminal -e is execute command)
+
+	config EMBEDED_INITRD
+		bool "enable embeded in initramfs"
+		default y
+		help
+			#-- embeded using busybox and libc
+	config KERNEL_MODULE_BUILDIN
+		bool "add kernel module to initramfs"
+		default y
+	config INSTALLER_ENABLED
+		bool "enable build in installer "
+		default y 
+		help
+			#-- enable build in installer 
+#---  
+endmenu 
+
+
+menu "--- Dveloper Setting (WARNING: for  developers only)"
+	comment "please don't edit it if you don't know what are u doing"
+	comment ""
+	config DISTNAME
+		string "distribution name "
+		default "$LIVEKITNAME"
+		help
+			#-- point to LIVEKITNAME
+	config INITRD_FILE
+		string "initrd file (See Help) "
+		default "/boot/initrd.img-$(uname -r)-build"
+
+	config SRC_ISO
+		string "source base iso  (See Help) "
+		default "$PWDN/baseiso/$(uname -m)"
+
+	config KERNEL_FILE
+		string "KERNEL (See Help) "
+		default "$(cat /proc/cmdline | sed -e 's/^.*BOOT_IMAGE=//' -e 's/ .*$//')"
+			
+	menu "pkg sources "
+
+		comment "e2fsprogs"
+			config EFS_FILE
+				string ""
+				default "e2fsprogs-1.43.4.tar.gz"
+				
+			config EFS_SRC
+				string " "
+				default "http://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.43.4/$EFS_FILE"
+			
+		comment "util-linux"
+			config UTILS_LINUX_FILE
+				string " "
+				default "util-linux-2.29.1.tar.xz"
+				
+			config UTILS_lINUX_SRC
+				string " "
+				default "https://www.kernel.org/pub/linux/utils/util-linux/v2.29/$UTILS_LINUX_FILE"
+
+		comment "Busybox"
+			config BUSYBOX_FILE
+				string " "
+				default "busybox-1.27.2.tar.bz2"
+				
+			config BUSYBOX_SRC
+				string " "
+				default "https://busybox.net/downloads/$BUSYBOX_FILE"
+
+		comment "ncurses"
+			config NCURSES_FILE
+				string " "
+				default "ncurses-6.0.tar.gz"
+				
+			config NCURSES_SRC
+				string " "
+				default "http://ftp.gnu.org/gnu//ncurses/$NCURSES_FILE	"
+
+		comment "Zlib"
+			config ZLIB_FILE
+				string " "
+				default "zlib-1.2.8.tar.gz"
+				
+			config ZLIB_SRC
+				string " "
+				default "http://downloads.sourceforge.net/libpng/$ZLIB_FILE"
+	
+        	comment "netplug + patch"
+			config NETPLUG_FILE
+				string " "
+				default "netplug-1.2.9.2.tar.bz2"
+			config NETPLUGP_FILE
+				string " "
+				default "netplug-1.2.9.2-fixes-1.patch"
+				
+			config NETPLUG_SRC
+				string " "
+				default "http://www.red-bean.com/~bos/netplug/$NETPLUG_FILE"
+			
+
+				
+			config NETPLUGP_SRC
+				string " "
+				default "http://patches.clfs.org/embedded-dev/$NETPLUGP_FILE"
+
+		comment "dropbear"
+			config DROPBEAR_FILE
+				string " "
+				default "dropbear-2013.60.tar.bz2"
+				
+			config DROPBEAR_SRC
+				string " "
+				default "http://matt.ucc.asn.au/dropbear/releases/$DROPBEAR_FILE"
+	
+        	comment "wireless tools"
+			config WT_FILE
+				string " "
+				default "wireless_tools.29.tar.gz"
+				
+			config WT_SRC
+				string " "
+				default "http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/$WT_FILE"
+
+		comment "grub os prober"
+			config GRUB_OSPROBERFILE
+				string " "
+				default "os-prober_1.76.tar.xz"
+				
+			config GRUB_OSPROBER
+				string " "
+				default "http://http.debian.net/debian/pool/main/o/os-prober/$GRUB_OSPROBERFILE"
+
+        	comment "dialog "
+			config DIALOG_FILE
+				string " "
+				default "dialog.tar.gz"
+
+		
+		endmenu 
+#--- End Dveloper Setting
+endmenu

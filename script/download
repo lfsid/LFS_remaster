@@ -93,7 +93,13 @@ fi
 
 
 
-
+if [ -f "$GRUB_OSPROBERFILE" ];
+then
+   echo "   // File  $GRUB_OSPROBERFILE exist."
+else
+   echo "   -- File  $GRUB_OSPROBERFILE does not exist, add to download list" 
+echo "$GRUB_OSPROBER" >> $SRC_PKG_DIR/pkg-list
+fi
 
 cd $SRC_PKG_DIR
 

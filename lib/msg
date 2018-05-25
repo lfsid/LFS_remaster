@@ -3,7 +3,7 @@
 
  BACK_TITLE="draOs `uname -m` GNU/Linux installer"
 
- CUSTOM_MSG="draOsLinux is the Linux operating system from Indonesia Open source.
+ CUSTOM_MSG="$LIVEKITNAME  is the Linux operating system from Indonesia Open source.
              is built based on the Linux From Scratch under the protection of the
              GNU General Public License v3.0.\n\nThis operating system is one variant of Linux distributions,
               which is used to perform security testing (penetration testing).
@@ -22,4 +22,4 @@
  MSG_CFDISK="$LIVEKITNAME installer will now start cfdisk so that you are able to create new partitions for $LIVEKITNAME.
              \n\nTwo partitions are recommended. [1] for the system and [1] for SWAP.\n\nI think 20 GB are enough for the root-partition - 
              $LIVEKITNAME plus additional programs - and twice the amount of your \ZB\Z1RAM for the swap-partition.\n\nJust follow the menu, store your changes and quit cfdisk to go on!\n\n	
-             IMPORTANT: Read the instructions and the output of cfdisk carefully. Sometimes you have to reboot to update the partition table!"
+             \ZB\Z1IMPORTANT: Read the instructions and the output of cfdisk carefully. Sometimes you have to reboot to update the partition table!"

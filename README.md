@@ -48,10 +48,46 @@ initswitch beetwen systemd and sysvinit only for kolomonggo linux system hyrarki
 extract to "/" file system don't extrack to other directory and run with root account. and 
 create directory sources under "/" example  = /sources
 
+# config 
+to edit config for source , fakeroot location run
+ ./lfskit --config 
 
 
-run  
 
+for only build initramfs run  
 
  ./lfskit --built-initrd
+
+
+# remastering 
+
+need at lease 20 gb free 
+
+make folder /fakeroot 
+make folder /fakroot/live/$(arch) see  uname -m
+make folder /fakeroot/squash
+
+note: see error message for mising dir to build it or edit  ./lfskit --config 
+
+run 
+
+ ./lfskit --remaster
  
+# building iso 
+
+to build iso open terminal
+cd to /fakroot/live
+
+run 
+
+xorrisofs -o distro-name.iso     \
+          -b boot/isolinux/isolinux.bin \
+          -c boot.cat                   \
+          -no-emul-boot                 \
+          -boot-load-size 4             \
+          -boot-info-table              \
+          -joliet -l -R                 \
+          $(arch) 
+
+
+

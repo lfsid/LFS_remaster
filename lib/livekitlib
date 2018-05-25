@@ -38,6 +38,37 @@ cmdline_value()
 
 # test if the script is started by root user. If not, exit
 #
+
+manifesto(){
+ cd $UNION
+
+
+
+if [ -d "$UNION/sys" ]; then  
+    rm -rf $UNION/sys   
+fi
+
+
+
+echo "//   Please wait ..." 
+echo "//   creating manifest data "     
+find * -type f -follow -print > /data-manifest  
+echo "//   cleaning uneeded  in manifest "               
+sed -i '/dev/d' /data-manifest  2>/dev/null
+sed -i '/proc/d' /data-manifest  2>/dev/null
+sed -i '/sys/d' /data-manifest 2>/dev/null
+sed -i '/run/d' /data-manifest 2>/dev/null
+sed -i '/tmp/d' /data-manifest 2>/dev/null
+wc -l < /data-manifest >> /totalline 2>/dev/null
+echo "//    runing installer"
+sleep 2
+clear
+}
+
+
+
+
+
 allow_only_root()
 {
   if [ "0$UID" -ne 0 ]; then

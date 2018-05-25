@@ -9,11 +9,41 @@
 
 ceck_depend() {
 
+dir_main="$SRC_PKG_DIR $TGT_REMASTER $TGT_LIVE_DISK $TGT_SQUASHFS"
+
+for dirmain in $dir_main
+do 
+	 if [ -L "$dirmain" ]; then
+		 if [ -e "$dirmain" ]; then	
+			
+			echo "$dirmain is exist and it's a good symslynk"
+		 else
+			
+			echo "$dirmain is exist and it's a broken symslynk please check it"
+		 fi
+	 elif [ -e "$dirmain" ] ; then
+	                
+			echo "$dirmain exist"
+         else 
+                        
+			echo "please create dir $dirmain"
+			 
+			
+			SETUP_DIR="no"
+	 		
+	 fi
+done
+if [ "$SETUP_DIR" == "no" ]; then
+	exit 1
+fi
+echo "" 
+
+
   echo "checking dependencies ..."
 
 
  
-  sleep 0.5 
+   
 
   if ! [ -x "$(command -v mksquashfs)" ]; then
   	SQUASHFS="no"  
@@ -22,7 +52,7 @@ ceck_depend() {
   	SQUASHFS="yes"
 	echo "checking squashfs-tools    yes "
   fi
-  sleep 0.5
+  
    
   if ! [ -x "$(command -v git)" ]; then
   	GITAPP="no"
@@ -31,7 +61,7 @@ ceck_depend() {
   	GITAPP="yes"
         echo "checking git    yes "
   fi
-  sleep 0.5
+  
 
   if ! [ -x "$(command -v sudo)" ]; then
   	SUDOAPP="no"
@@ -40,7 +70,7 @@ ceck_depend() {
  	SUDOAPP="yes"
         echo "checking sudo    yes "
   fi
-  sleep 0.5
+  
   if ! [ -x "$(command -v wget)" ]; then
   	WGETAPP="no"
          echo "checking wget     no"
@@ -49,7 +79,7 @@ ceck_depend() {
         echo "checking wget    yes "
   fi
 
-  sleep 0.5
+  
   if ! [ -x "$(command -v xorrisofs)" ]; then
   	ISOBURN="no"
          echo "checking xorrisofs     no"
@@ -58,9 +88,9 @@ ceck_depend() {
          echo "checking xorrisofs     yes "
   
   fi
- sleep 0.5
+ 
 
-if [ "$INSTALLER_ENABLED" == "yes" ]; then
+if [ "$INSTALLER_ENABLED" == "y" ]; then
      echo "installer enabled    yes"
      
   
@@ -107,7 +137,7 @@ sleep 1
 err_depend() {
 summary_
 echo ""
-echo "unmeet dependencies  , plese compile and instal- it "
+echo "unmeet dependencies  , plese compile and instal-it "
 exit 1
 }
 
@@ -180,7 +210,7 @@ echo "- MISC "
 echo " "
 
 
-if [ "$INSTALLER_ENABLED" == "yes" ]; then
+if [ "$INSTALLER_ENABLED" == "y" ]; then
 	echo "   installer        yes"
 else
 	echo "   installer        no"
@@ -192,7 +222,7 @@ fi
  
 
 
-if [ "$EMBEDED_INITRD" == "yes" ]; then
+if [ "$EMBEDED_INITRD" == "y" ]; then
         echo "   embeded initrd   yes"
 
 else
@@ -212,6 +242,7 @@ fi
 
 
 echo " "
+
 
 }
 

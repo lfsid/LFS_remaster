@@ -21,7 +21,7 @@ NC='\033[0m' # No Color
 
 
 
-
+clear
 transfer_initramfs
 
 
@@ -48,10 +48,10 @@ init_devs
 init_aufs
 #init_zram
 
-if grep -q clean  /proc/cmdline; then
-  clear
-fi
-
+#if grep -q clean  /proc/cmdline; then
+#  clear
+#fi
+ clear
 if [ -f "/kernel-modules.sfs" ];
 then
 echo " mount kernel module "
@@ -110,20 +110,8 @@ header "//$DISTNAME Live Kit init start"
 		
 		header "// running installation tool via initramfs "
                 cd $UNION
-
-echo "//   Please wait ..." 
-echo "//   creating manifest data "     
-find * -type f > /data-manifest
-echo "//   cleaning uneded did in manifest "               
-sed -i '/dev/d' /data-manifest
-sed -i '/proc/d' /data-manifest
-sed -i '/sys/d' /data-manifest
-sed -i '/run/d' /data-manifest
-sed -i '/tmp/d' /data-manifest
-echo "//    runing installer"
-sleep 2
-
- /bin/installer
+		manifesto   
+                /bin/installer
         elif grep -q recovery /proc/cmdline; then
                 /linuxrc
 	

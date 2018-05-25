@@ -1,0 +1,54 @@
+#!/bin/bash
+
+#create pre installed os-prober for grub
+
+. script/download
+. script/embeded
+. script/buildiso
+. script/remaster
+. script/function
+. script/ceck-depend
+
+
+
+
+
+os_prober(){
+
+
+echo "// creating pre installed os-prober" 
+
+cd $SRC_PKG_DIR >/dev/null 2>/dev/null
+
+ 
+
+
+cd  $WORK_DIR >/dev/null 2>/dev/null
+
+tar -xf $SRC_PKG_DIR/$GRUB_OSPROBERFILE >/dev/null 2>/dev/null
+cd *prober* >/dev/null 2>/dev/null
+make  >/dev/null 2>/dev/null
+
+mkdir -pv $TGT_TMP_INITRD/os-prober >/dev/null 2>/dev/null
+
+mkdir -pv ${TGT_TMP_INITRD}/os-prober/usr/{lib,share}/os-prober >/dev/null 2>/dev/null
+mkdir -pv ${TGT_TMP_INITRD}/os-prober/usr/bin >/dev/null 2>/dev/null
+cp -v os-prober ${TGT_TMP_INITRD}/os-prober/usr/bin >/dev/null 2>/dev/null
+cp -v linux-boot-prober ${TGT_TMP_INITRD}/os-prober/usr/bin >/dev/null 2>/dev/null
+cp -v newns ${TGT_TMP_INITRD}/os-prober/usr/lib/os-prober >/dev/null 2>/dev/null
+cp -v common.sh ${TGT_TMP_INITRD}/os-prober/usr/share/os-prober >/dev/null 2>/dev/null
+
+mkdir -pv ${TGT_TMP_INITRD}/os-prober/usr/lib/linux-boot-probes/mounted >/dev/null 2>/dev/null
+mkdir -pv ${TGT_TMP_INITRD}/os-prober/usr/lib/os-probes/{init,mounted} >/dev/null 2>/dev/null
+
+cp -v linux-boot-probes/common/*         ${TGT_TMP_INITRD}/os-prober/usr/lib/linux-boot-probes >/dev/null 2>/dev/null
+cp -v linux-boot-probes/mounted/common/* ${TGT_TMP_INITRD}/os-prober/usr/lib/linux-boot-probes/mounted >/dev/null 2>/dev/null
+cp -v linux-boot-probes/mounted/x86/*    ${TGT_TMP_INITRD}/os-prober/usr/lib/linux-boot-probes/mounted >/dev/null 2>/dev/null
+
+cp -v  os-probes/common/*         ${TGT_TMP_INITRD}/os-prober/usr/lib/os-probes >/dev/null 2>/dev/null
+cp -v  os-probes/init/common/*    ${TGT_TMP_INITRD}/os-prober/usr/lib/os-probes/init >/dev/null 2>/dev/null
+cp -v  os-probes/mounted/common/* ${TGT_TMP_INITRD}/os-prober/usr/lib/os-probes/mounted >/dev/null 2>/dev/null
+cp -vR os-probes/mounted/x86/*    ${TGT_TMP_INITRD}/os-prober/usr/lib/os-probes/mounted >/dev/null 2>/dev/null
+
+mkdir -pv ${TGT_TMP_INITRD}/os-prober/var/lib/os-prober >/dev/null 2>/dev/null
+}

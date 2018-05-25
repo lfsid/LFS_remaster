@@ -1,0 +1,137 @@
+#!/bin/bash
+# This is a config file for Linux Live Kit build script.
+# mod by pornomo hadi purnomo.shinigami@gmail.com
+PWDN=$(pwd)
+#########################################
+#  this section for lfskit & initramfs  #
+#########################################
+
+  # NOTE : folder on live iso/disk must be same with LIVEKITNAME , example mylinux
+  #        boot/
+  #        mylinux/
+  #                root.BEXT (example root.sfs)       
+
+LIVEKITNAME="dracOs" # live kit name look like name in dist.iso/$LIVEKITNAME
+DISTNAME="dracOs" 
+VER_OS="v3"
+CODE_NAME="unamex"
+
+
+# Bundle extension, for example 'sb' for .sb extension
+
+BEXT=sfs # extention for squashfs file 
+
+
+################################
+#  this section for initramfs  #
+################################
+
+# optional feature for initramfs
+
+TERMINAL_TOOLS="xterm -e "       # terminal and execute comman from terminal 
+                                 # example xterm -e (xterm is terminal -e is execute command)
+
+
+EMBEDED_INITRD="yes"             # embeded using busybox and libc
+KERNEL_MODULE_BUILDIN="yes"
+
+INSTALLER_ENABLED="yes"          # for build in installer on initramfs
+
+
+##################
+#  for live iso  #
+##################
+
+KERNEL_FILE=$(cat /proc/cmdline | sed -e 's/^.*BOOT_IMAGE=//' -e 's/ .*$//')
+
+
+
+####################################################
+#                                                  #
+# Developer setiing                                #
+# Don't edit it if you don't know what are u doing #
+#                                                  #
+####################################################
+
+SRC_PKG_DIR="/sources"
+TGT_REMASTER="/fakeroot"
+INITRD_FILE=/boot/initrd.img-$(uname -r)-build
+TGT_TMP="/tmp"
+
+WORK_DIR=$TGT_TMP/work-pkg
+
+
+SRC_ISO="$PWDN/baseiso/$(uname -m)"
+TGT_TMP_INITRD=$TGT_TMP/newinit
+
+
+
+
+
+
+#DIALOG_SRC="ftp://hightek.org/pub/projects/dialog/$DIALOG_FILE"
+
+
+
+###############################################
+#                                             #
+# remaster section                            #
+#                                             #
+###############################################
+
+
+
+
+
+TGT_LIVE_DISK=$TGT_REMASTER/live/$(uname -m)
+TGT_LIVE_DISK_FILE=$TGT_REMASTER/LFS.iso
+TGT_SQUASHFS=$TGT_REMASTER/squash
+TGT_SQUASHFS_FILE=$TGT_REMASTER/core.$BEXT
+
+
+
+
+
+##############################################
+#
+#
+#
+##############################################
+
+
+
+
+
+
+
+EFS_FILE="e2fsprogs-1.43.4.tar.gz"
+UTILS_LINUX_FILE="util-linux-2.29.1.tar.xz"
+BUSYBOX_FILE="busybox-1.27.2.tar.bz2"
+NCURSES_FILE="ncurses-6.0.tar.gz"
+ZLIB_FILE="zlib-1.2.8.tar.gz"
+NETPLUG_FILE="netplug-1.2.9.2.tar.bz2"
+NETPLUGP_FILE="netplug-1.2.9.2-fixes-1.patch"
+DROPBEAR_FILE="dropbear-2013.60.tar.bz2"
+WT_FILE="wireless_tools.29.tar.gz"
+DIALOG_FILE="dialog.tar.gz"
+GRUB_OSPROBERFILE="os-prober_1.76.tar.xz"
+
+
+
+
+EFS_SRC="http://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.43.4/$EFS_FILE"
+UTILS_lINUX_SRC="https://www.kernel.org/pub/linux/utils/util-linux/v2.29/$UTILS_LINUX_FILE"
+BUSYBOX_SRC="https://busybox.net/downloads/$BUSYBOX_FILE"
+NCURSES_SRC="http://ftp.gnu.org/gnu//ncurses/$NCURSES_FILE"
+ZLIB_SRC="http://downloads.sourceforge.net/libpng/$ZLIB_FILE"
+NETPLUG_SRC="http://www.red-bean.com/~bos/netplug/$NETPLUG_FILE"
+NETPLUGP_SRC="http://patches.clfs.org/embedded-dev/$NETPLUGP_FILE"
+DROPBEAR_SRC="http://matt.ucc.asn.au/dropbear/releases/$DROPBEAR_FILE"
+WT_SRC="http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/$WT_FILE"
+GRUB_OSPROBER="http://http.debian.net/debian/pool/main/o/os-prober/$GRUB_OSPROBERFILE"
+
+
+
+
+
+

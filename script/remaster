@@ -1,49 +1,196 @@
 #!/bin/bash
 
 
-remaster_() {
 
+PWDN=$(pwd)
+greating_remaster() {
+echo ""
 echo "// REMASTERING process "
 echo ""
 echo "  --- CAUTION ! --- "
 echo ""
-echo " before continue please backup or remove "
+echo " before continue , if you have a plan to  "
+echo " distribute your distro, please backup or remove "
 echo " private file and folder in your root or /home/*"
 echo " clean your browser cache, pasword, etc"
 echo " Example: "
 echo " .mozilla, .cache, .ssh, file in Download folder, bash_history"
 echo " .thumbnails, etc. in your root and /home/user dir ,so not to get"
 echo " carried into remastering"
-echo ""
+echo " note:"
+echo " this script run on root . you must carefully for what a're you doing "
+echo "" 
 
 read -rsp $'if done Press any key to continue...\n' -n1 key
-
-
-rm -rf  $TGT_LIVE_DISK >/dev/null 2>/dev/null
-rm -rf $TGT_SQUASHFS >/dev/null 2>/dev/null
-
-mkdir -pv $TGT_LIVE_DISK $TGT_SQUASHFS 
-cp -vpR $SRC_ISO $TGT_LIVE_DISK
-cp  --preserve -R  /{bin,boot,etc,home,lib,sbin,srv,usr,var,opt,lib64} $TGT_SQUASHFS
-mkdir -vp $TGT_SQUASHFS/root
-mkdir -vp $TGT_SQUASHFS/root/Desktop
-mkdir -vp $TGT_SQUASHFS/root/Downloads
-mkdir -vp $TGT_SQUASHFS/mnt
-mkdir -vp $TGT_SQUASHFS/tmp
-mkdir -vp $TGT_SQUASHFS/dev
-mkdir -vp $TGT_SQUASHFS/proc
-mkdir -vp $TGT_SQUASHFS/sys
-mkdir -vp $TGT_SQUASHFS/run
-
-
-
-cp -v /root/.bash* $TGT_SQUASHFS/root
-cp -vpR /root/.config $TGT_SQUASHFS/root
-cp -v /root/.vim* $TGT_SQUASHFS/root
-cp -v /root/.top* $TGT_SQUASHFS/root
+echo "" 
 
 
 
 }
+
+build_dir(){
+        echo "//   creating some dir in $TGT_REMASTER "
+
+	mkdir -pv $TGT_LIVE_DISK $TGT_SQUASHFS >/dev/null 2>/dev/null
+        mkdir -vp $TGT_LIVE_DISK/$LIVEKITNAME >/dev/null 2>/dev/null
+	mkdir -vp $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	mkdir -vp $TGT_SQUASHFS/root/Desktop >/dev/null 2>/dev/null
+	mkdir -vp $TGT_SQUASHFS/root/Downloads >/dev/null 2>/dev/null
+	mkdir -vp $TGT_SQUASHFS/mnt >/dev/null 2>/dev/null
+        mkdir -vp $TGT_SQUASHFS/media >/dev/null 2>/dev/null
+        
+}
+
+
+copying_system(){
+        echo "//   copying system file to $TGT_SQUASHFS "
+        $TERMINAL_TOOLS cp -v  --preserve -R  /{bin,boot,etc,home,lib,sbin,srv,usr,var,opt,lib64} $TGT_SQUASHFS 
+}
+
+copying_root(){
+
+	cp -vpR /root/.bash* $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/.config $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/.vim* $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/.top* $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/.bash* $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/{.*config} $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/.dmrc  $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/.toprc $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+	cp -vpR /root/.viminfo $TGT_SQUASHFS/root >/dev/null 2>/dev/null
+
+
+
+
+}
+
+copying_baseiso(){
+	cp -vpR $SRC_ISO/* $TGT_LIVE_DISK >/dev/null 2>/dev/null
+        cp -vpR $PWDN/bootlogo.png $TGT_LIVE_DISK/boot >/dev/null 2>/dev/null
+        cp -vpR /boot/initrd.img-$(uname -r)-build $TGT_LIVE_DISK/boot/initrfs.img >/dev/null 2>/dev/null
+        cp -vpR $KERNEL_FILE $TGT_LIVE_DISK/boot/vmlinuz >/dev/null 2>/dev/null
+}
+
+squashing_(){
+echo ""
+echo "  --- CAUTION ! --- "
+echo ""
+echo " before making squashfs from copying system , "
+echo " please check the $TGT_SQUASHFS, the folder is the copy of the system"
+echo " to create squashfs file. maybe you need to modify or or clean out the"  
+echo " unnecessary on "
+echo " Example: "
+echo " .mozilla, .cache, .ssh, file in Download folder, bash_history"
+echo " .thumbnails, etc. in $TGT_SQUASHFS/root and "
+echo " $TGT_SQUASHFS/home/user dir, "
+echo " so not to get carried into remastering"
+echo "" 
+
+read -rsp $'if done Press any key to continue...\n' -n1 key
+echo "" 
+
+	cd $TGT_SQUASHFS
+         echo "//   making a squashfs file $TGT_SQUASHFS_FILE "
+        $TERMINAL_TOOLS  mksquashfs . $TGT_SQUASHFS_FILE -comp xz
+}
+
+copying_squashfs(){
+         echo "//   moving $TGT_SQUASHFS_FILE to $TGT_LIVE_DISK/$LIVEKITNAME/ "
+	 mv $TGT_SQUASHFS_FILE $TGT_LIVE_DISK/$LIVEKITNAME/
+}
+
+#######################
+
+deploy_sys_iso_linux(){
+echo "//   creating isolinux.cfg and syslinux.cfg "
+
+
+cat > $TGT_LIVE_DISK/boot/isolinux/isolinux.cfg << EOF
+INCLUDE /boot/$LIVEKITNAME.cfg
+EOF
+
+cat > $TGT_LIVE_DISK/boot/syslinux/syslinux.cfg << EOF
+INCLUDE /boot/$LIVEKITNAME.cfg
+EOF
+
+cat > $TGT_LIVE_DISK/boot/$LIVEKITNAME.cfg << EOF
+PROMPT 0
+TIMEOUT 90
+DEFAULT /boot/vesamenu.c32
+MENU BACKGROUND /boot/bootlogo.png
+
+MENU WIDTH 36
+MENU MARGIN 0
+MENU ROWS 8
+MENU HELPMSGROW 14
+MENU TIMEOUTROW 22
+MENU TABMSGROW 24
+MENU CMDLINEROW 24
+MENU HSHIFT 40
+MENU VSHIFT 2
+
+	menu color screen	37;40      #00000000 #00000000 none
+	menu color border	30;44      #00000000 #00000000 none
+	menu color title	1;36;44    #00000000 #00000000 none
+	menu color unsel	37;44      #ff60CA00 #00000000 none
+	menu color hotkey	1;37;44    #ff60CA00 #00000000 none
+	menu color sel		7;37;40    #ffffffff #ff60CA00 none
+	menu color hotsel	1;7;37;40  #ff808080 #ff60CA00 none
+	menu color scrollbar	30;44      #00000000 #00000000 none
+
+	menu color tabmsg	31;40      #aaaaaaaa #00000000 none
+	menu color cmdmark	1;36;40    #ffff0000 #00000000 none
+	menu color cmdline	37;40      #aaaaaaaa #00000000 none
+	menu color pwdborder	30;47      #ffff0000 #00000000 std
+	menu color pwdheader	31;47      #ffff0000 #00000000 std
+	menu color pwdentry	30;47      #ffff0000 #00000000 std
+	menu color timeout_msg	37;40      #aaaaaaaa #00000000 none
+	menu color timeout	1;37;40    #ffaaaaff #00000000 none
+	menu color help		37;40      #aaaaaa00 #00000000 none
+	menu color msg07	37;40      #90ffffff #00000000 std
+
+LABEL run $LIVEKITNAME live 
+MENU LABEL Run $LIVEKITNAME live
+KERNEL /boot/vmlinuz
+APPEND initrd=/boot/initrfs.img quiet live
+
+TEXT HELP
+                                          More about currently selected:
+
+                                          Run $LIVEKITNAME live  
+ENDTEXT
+
+LABEL run $LIVEKITNAME install
+MENU LABEL Run $LIVEKITNAME install
+KERNEL /boot/vmlinuz
+APPEND initrd=/boot/initrfs.img quiet live install
+
+TEXT HELP
+                                          More about currently selected:
+
+                                          Run $LIVEKITNAME live and run 
+                                          installer
+ENDTEXT
+
+LABEL run $LIVEKITNAME embeded
+MENU LABEL Run $LIVEKITNAME embeded
+KERNEL /boot/vmlinuz
+APPEND initrd=/boot/initrfs.img quiet embeded
+
+TEXT HELP
+                                          More about currently selected:
+
+                                          Run small-Dum linux (embeded) 
+					  from initrfs.img
+ENDTEXT
+
+EOF
+
+
+}
+
+
+
+
 
 

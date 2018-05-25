@@ -1,0 +1,1133 @@
+#!/bin/bash
+
+
+
+# copyright 2017 by DracOs dev team (http://dracos-linux.org)
+# dracos tools is contain tools for editing some config
+# like time, date ,keyboard layout, local, network and etc
+# created by purnomo hadi <purnomo@dracos-linux.org >   
+# This shell script is contributed under the terms of GPL v2 or 3
+# build for DracOs-linux
+
+readonly COMMAND="$0"
+readonly SETUP_ARCH="`uname -m`"
+readonly VERSION="1.0"
+
+#####################################################
+# SOME COLOURS BIAR COOL
+#####################################################
+cyan='\e[0;36m'
+green='\e[0;34m'
+okegreen='\033[92m'
+lightgreen='\e[1;32m'
+white='\e[1;37m'
+red='\e[1;31m'
+yellow='\e[1;33m'
+BlueF='\e[1;34m'
+
+
+
+TMP=/tmp/DRACOS 2>/dev/null
+CARDS="/etc/cards.conf"
+XORGKB="/etc/X11/xorg.conf.d/20-keyboard.conf"
+CONSOLE="/etc/sysconfig/console"
+LOCALE="/etc/profile.d/i18n.sh"
+LOCALTIME="/etc/localtime"
+ZONEINFO="/usr/share/zoneinfo/"
+NETWORK="`ls /etc/sysconfig/ifconfig* 2>/dev/null|head -1`"
+CLOCK="/etc/sysconfig/clock"
+USER="/home"
+
+rm -rf $TMP 2>/dev/null
+mkdir /tmp/DRACOS 2>/dev/null
+# please chose one of them 
+
+INITSYSTEM=systemd
+#INITSYSTEM=sysvinit
+#INITSYSTEM=openrc
+
+
+
+
+
+
+################## fungsi #####################
+
+check_swap() {
+	unset SWAP_LIST
+	SWAP_LIST="`LANG=C fdisk -l -o device,type|grep swap|cut -d " " -f1`"
+	if [ -z "${SWAP_LIST}" ];then
+		dialog --title "   Hmmmm   " \
+	--msgbox "    Swap partition not found" 6 60
+	fi
+        echo "$SWAP_LIST" >> $TMP/swaplist
+}
+setup_swap() {
+for i in ${SWAP_LIST}
+do
+	
+	echo "$i swap     swap       pri=1             0     0" >> /etc/fstab
+	/sbin/mkswap $i 2>1 > /dev/null
+done
+}
+
+
+
+time_zone() 
+{
+
+dialog --clear --backtitle "dracOs `uname -m` GNU/Linux installer "  --title "-- Time Zone --" --colors --yesno "\n Do you want to set time Zone " 10 40
+if [ $? = 0 ] ; then
+clear
+      
+    		rm /timezone
+
+
+tzselect | tee -a /timezone
+	
+clear
+
+cp -v /usr/share/zoneinfo/`cat /timezone` /etc/localtime
+fi
+sleep 2 
+}
+
+network_card_found() {
+local NIC
+NIC=`ls /sys/class/net`
+if [  `echo $NIC|wc -w` -gt 1 ];then
+        retval=""
+        touch $TMP/result
+        while [ true ]; do
+                echo  -n "--backtitle \"  "Network card" \" \
+                --title \"  "Select the card" \" \
+                --radiolist \"  "Card to configure" \" 0 0 0 " > $TMP/list
+                for i in $NIC
+                do
+                        [ "$i" == "lo" ] && continue
+                        echo -n \""$i"\"\  \"`/sbin/udevadm info /sys/class/net/$i|grep ID_MODEL_FROM_DATABASE|cut -d "=" -f2`\" " off "
+                        done >> $TMP/list
+                        dialog --file $TMP/list 2>$TMP/result
+                        retval=$?
+                        result=`cat $TMP/result`
+                        case $retval in
+                                0)
+                                        if [ "$result" != "" ]; then
+                                                break
+                                        fi;;
+                                1|255)
+                                        if [ "$result" != "" ]; then
+                                                break
+                                        fi;;
+                        esac
+        done
+        NETWORK_CARD=`cat $TMP/result|sed 's/"//g'`
+
+fi
+}
+
+
+setup_keymap()
+{
+	cat > ${CONSOLE} << "EOF"
+FONT="LatGrkCyr-8x16"
+UNICODE="1"
+LOGLEVEL=1
+EOF
+	cat > ${XORGKB} << "EOF"
+Section "InputClass"
+  Identifier "Generic Keyboard"
+  MatchIsKeyboard "yes"
+EOF
+while [ true ]; do
+dialog  \
+--title  "Keyboard Layout"  \
+--backtitle  "Settings " --menu "Choose available" 30 55 20 \
+"US default" "QWERTYUIOP" \
+"fr-latin9" "AZERTYUIOP" \
+"be-latin1" "AZERTYUIOP" \
+"fr_CH-latin1" "QWERTZUIOP" \
+"de_CH-latin1" "QWERTZUIOP" \
+"cf" "AZERTYUIOP" \
+"de-latin1" "QWERTY" \
+"azerty" "AZERTY" \
+"ANSI-dvorak" "" \
+"applkey" "" \
+"backspace" "" \
+"bg-cp1251" "" \
+"bg-cp855" "" \
+"bg_bds-cp1251" "" \
+"bg_bds-utf8" "" \
+"bg_pho-cp1251" "" \
+"bg_pho-utf8" "" \
+"br-abnt" "" \
+"br-abnt2" "" \
+"br-latin1-abnt2" "" \
+"br-latin1-us" "" \
+"by" "" \
+"croat" "" \
+"ctrl" "" \
+"cz-cp1250" "" \
+"cz-lat2-prog" "" \
+"cz-lat2" "" \
+"cz-us-qwertz" "" \
+"cz" "" \
+"de-latin1-nodeadkeys" "" \
+"de" "" \
+"defkeymap" "" \
+"defkeymap_V1.0" "" \
+"dk-latin1" "" \
+"dk" "" \
+"dvorak-l" "\"<>PYF" \
+"dvorak-r" "" \
+"dvorak" "" \
+"emacs" "" \
+"emacs2" "" \
+"es-cp850" "" \
+"es" "" \
+"et-nodeadkeys" "" \
+"et" "" \
+"euro" "" \
+"euro1" "" \
+"euro2" "" \
+"fi-latin1" "QWERTYUIOPÅ" \
+"fi-latin9" "QWERTYUIOPÅ" \
+"fi" "" \
+"gr-pc" "" \
+"gr" "" \
+"hu" "" \
+"hu101" "" \
+"il-heb" "" \
+"il-phonetic" "" \
+"il" "" \
+"is-latin1-us" "" \
+"is-latin1" "" \
+"it-ibm" "" \
+"it" "" \
+"it2" "" \
+"jp106" "" \
+"keypad" "" \
+"la-latin1" "" \
+"list" "" \
+"lt.baltic" "" \
+"lt" "" \
+"lt.l4" "" \
+"mk-cp1251" "" \
+"mk-utf" "" \
+"mk" "" \
+"mk0" "" \
+"nl" "" \
+"nl2" "" \
+"no-latin1" "" \
+"no" "" \
+"pc110" "" \
+"pl" "" \
+"pl2" "" \
+"pt-latin1" "" \
+"pt-latin9" "" \
+"ro_win" "" \
+"ru-cp1251" "" \
+"ru-ms" "" \
+"ru-yawerty" "" \
+"ru" "" \
+"ru1" "" \
+"ru2" "" \
+"ru3" "" \
+"ru4" "" \
+"ru_win" "" \
+"se-fi-ir209" "" \
+"se-fi-lat6" "" \
+"se-ir209" "" \
+"se-lat6" "" \
+"sg-latin1-lk450" "" \
+"sg-latin1" "" \
+"sg" "" \
+"sk-prog-qwerty" "" \
+"sk-prog-qwertz" "" \
+"sk-qwerty" "" \
+"sk-qwertz" "" \
+"slovene" "" \
+"speakup-jfw" "" \
+"speakupmap" "" \
+"sr-cy" "" \
+"sv-latin1" "" \
+"tr_f-latin5" "" \
+"tr_q-latin5" "" \
+"tralt" "" \
+"trf" "" \
+"trq" "" \
+"ua-utf-ws" "" \
+"ua-utf" "" \
+"ua-ws" "" \
+"ua" "" \
+"uk" "" \
+"unicode" "" \
+"us-acentos" "" \
+"windowkeys" "" 2> $TMP/locale.check
+
+if [ ! $? = 0 ]; then
+  break
+fi
+REPLY=`cat $TMP/locale.check`
+break
+done
+sed -i "/KEYMAP/d" ${CONSOLE}
+echo "KEYMAP=${REPLY}.map" >> ${CONSOLE}
+
+loadkeys ${REPLY}.map > /dev/null 2>&1
+case $REPLY in
+	us)
+		echo '  Option "XkbLayout" "us"' >> ${XORGKB};;
+	be-latin1|wangbe*)
+		echo '  Option "XkbLayout" "be"' >> ${XORGKB};;
+	cf)
+		echo '  Option "XkbLayout" "cf"' >> ${XORGKB};;
+	fr|fr-*|azerty)
+		echo '  Option "XkbLayout" "fr"' >> ${XORGKB};;
+	fr_CH*)
+		echo '  Option "XkbLayout" "ch"' >> ${XORGKB}
+		echo '  Option "XkbVariant" "fr"' >> ${XORGKB};;
+	de_CH*) echo '  Option "XkbLayout" "ch"' >> ${XORGKB};;
+	de-*) echo '  Option "XkbLayout" "de"' >> ${XORGKB};;
+	es|es-*) echo '  Option "XkbLayout" "es"' >> ${XORGKB};;
+	da*) echo '  Option "XkbLayout" "da"' >> ${XORGKB};;
+	nl*) echo '  Option "XkbLayout" "nl"' >> ${XORGKB};;
+	it*) echo '  Option "XkbLayout" "it"' >> ${XORGKB};;
+	lu*) echo '  Option "XkbLayout" "lu"' >> ${XORGKB};;
+	pt*) echo '  Option "XkbLayout" "pt"' >> ${XORGKB};;
+	no*) echo '  Option "XkbLayout" "no"' >> ${XORGKB};;
+	se*) echo '  Option "XkbLayout" "sv"' >> ${XORGKB};;
+	fi*) echo '  Option "XkbLayout" "fi"' >> ${XORGKB};;
+	ga*) echo '  Option "XkbLayout" "ga"' >> ${XORGKB};;
+	el*) echo '  Option "XkbLayout" "el"' >> ${XORGKB};;
+	pl*) echo '  Option "XkbLayout" "pl"' >> ${XORGKB};;
+	ro_*) echo '  Option "XkbLayout" "ro"' >> ${XORGKB};;
+	ru*) echo '  Option "XkbLayout" "ru"' >> ${XORGKB};;
+	sr*) echo '  Option "XkbLayout" "sr"' >> ${XORGKB};;
+	slo*) echo '  Option "XkbLayout" "sl"' >> ${XORGKB};;
+	cro*) echo '  Option "XkbLayout" "hr"' >> ${XORGKB};;
+	tr*) echo '  Option "XkbLayout" "tr"' >> ${XORGKB};;
+esac
+
+echo "EndSection" >> ${XORGKB}
+
+}
+
+setup_clock() {
+	local TABDATE
+	HWCLOCK=`LANG=C.utf-8 hwclock -r`
+	dialog --title "Coordinated Universal Time or Local Time ? " \
+	--yesno "The hardware clock is set to:\n\n $HWCLOCK. \n\nDo you want to use this time as Coordinated Universal Time ? \n\nso that the summer/winter time is changed automatically " 0 0
+	retval=$?
+	case $retval in
+		0)
+			UTC=1;;
+		1)
+			UTC=0;;
+	esac
+
+	echo "UTC=${UTC}" > /etc/sysconfig/clock
+
+	[ -r /etc/sysconfig/clock ] && . /etc/sysconfig/clock
+
+	case "${UTC}" in
+		1)
+			CLOCKPARAMS="${CLOCKPARAMS} --utc";;
+		0)
+			CLOCKPARAMS="${CLOCKPARAMS} --localtime";;
+	esac
+	
+	hwclock --hctosys ${CLOCKPARAMS} >/dev/null
+
+	exec 3>&1
+	DESC="Use the arrows keys to change the values"
+	USERDATE=`dialog --title "lease enter the date" \
+	--calendar "$DESC" 0 0 2>&1 1>&3`
+	code=$?
+	exec 3>&-
+	case $code in
+		0)
+			TABDATE=(`echo $USERDATE|sed "s|/| |g"`)
+			GOODDATE="${TABDATE[2]}${TABDATE[1]}${TABDATE[0]} "
+			;;
+		1)
+			SETUP_CONFIG_CLOCK="no"
+			#break;;
+	esac
+	exec 3>&1
+	USERTIME=`dialog --title "Please enter the time" \
+	--timebox  "$DESC" 0 0 2>&1 1>&3`
+	code=$?
+	exec 3>&-
+	case $code in
+		0)
+			echo "$GOODDATE$USERTIME" > $TMP/date;;
+		1)
+			#break;;
+	esac
+
+	date -s "$GOODDATE$USERTIME"
+
+	hwclock --systohc ${CLOCKPARAMS}
+
+
+
+}
+
+
+setup_net() 
+{
+network_card_found
+retval=""
+while [ "$retval" == "" ]; do
+	dialog  \
+	--title " Configuration of ${NETWORK_CARD} " \
+	--radiolist  "Configuration mode" \
+	0 0 0 "Auto" "IP address automatically set from DHCP server" "on" \
+	 "Man "  "Manually specify parameters" "off" 2> $TMP/result
+	retval=$?
+	result=`cat $TMP/result`
+	case $retval in
+		0)
+			if [ "$result" == "" ]; then
+				retval=""
+			fi;;
+		1|255)
+				exit;;
+  esac
+done
+if [ "`cat $TMP/result`" == "Auto" ];then
+cat > /etc/dhcp/dhclient.conf << "EOF"
+# Begin /etc/dhcp/dhclient.conf
+#
+# Basic dhclient.conf(5)
+
+#prepend domain-name-servers 127.0.0.1;
+request subnet-mask, broadcast-address, time-offset, routers,
+        domain-name, domain-name-servers, domain-search, host-name,
+        netbios-name-servers, netbios-scope, interface-mtu,
+        ntp-servers;
+require subnet-mask, domain-name-servers;
+#timeout 60;
+#retry 60;
+#reboot 10;
+#select-timeout 5;
+#initial-interval 2;
+
+# End /etc/dhcp/dhclient.conf
+EOF
+install -v -dm 755 /var/lib/dhclient
+
+
+
+	cat > /etc/sysconfig/ifconfig.$NETWORK_CARD << "EOF"
+ONBOOT="yes"
+SERVICE="dhcpcd"
+DHCP_START=""
+DHCP_STOP="-k "
+
+PRINTIP="no"
+
+PRINTALL="no"
+EOF
+echo "IFACE=${NETWORK_CARD}" >> /etc/sysconfig/ifconfig.${NETWORK_CARD}
+systemctl start dhclient@${NETWORK_CARD}	
+else
+	dialog \
+	--title  "Configuration of ${NETWORK_CARD} " \
+	--inputbox " Enter an IP address : " 10 60 "192.168.1.5" 2> $TMP/IP
+
+	if [ "`cat $TMP/IP`" == "" ]; then
+		interrupt
+	else
+		 IP=$(tail -n 1 $TMP/IP)
+	fi
+	BC_TEMP=$(echo $IP|cut -d . -f 1).$(echo $IP|cut -d . -f 2).$(echo $IP|cut -d . -f 3).255
+	dialog --title "Configuration of ${NETWORK_CARD} " \
+	--inputbox "Enter a broadcast address,\
+	 in most cases the current value can be used : " 10 60 ${BC_TEMP} 2> $TMP/BC
+	if [ "`cat $TMP/BC`" == "" ]; then
+		interrupt
+	else
+		BROADCAST=$(tail -n 1 $TMP/BC)
+	fi
+	dialog \
+	--title "Configuration of ${NETWORK_CARD} " \
+	--inputbox  "Enter the subnet mask,\
+	 in most cases the current value can be used: " 10 60 "255.255.255.0" 2> $TMP/NM
+	if [ "`cat $TMP/NM`" == "" ]; then
+		interrupt
+	else
+		PREFIX=$(tail -n 1 $TMP/NM)
+	fi
+	GW_TEMP=$(echo $IP|cut -d . -f 1).$(echo $IP|cut -d . -f 2).$(echo $IP|cut -d . -f 3).1
+	dialog \
+	--title " Configuration of ${NETWORK_CARD} " \
+	--inputbox "Enter the gateway address,\
+	it is normally the address of your router access point: " 10 60 ${GW_TEMP} 2> $TMP/GW
+	GW=$(tail -n 1 $TMP/GW)
+	dialog \
+	--title "Configuration of ${NETWORK_CARD} " \
+	--inputbox  "Enter the DNS address,\
+	it is normally the address of your router access point: " 10 60 ${GW} 2> $TMP/DNS
+	DNS=$(tail -n 1 $TMP/DNS)
+
+	/sbin/ifconfig ${NETWORK_CARD} ${IP} broadcast ${BROADCAST} netmask ${PREFIX}
+
+	if [ -n ${GW} ]; then
+		/bin/ip route add default via ${GW}
+	fi
+	cat > /etc/sysconfig/ifconfig.${NETWORK_CARD} << "EOF"
+ONBOOT=yes
+SERVICE=ipv4-static
+
+EOF
+	
+	echo "IP=${IP}" >> /etc/sysconfig/ifconfig.${NETWORK_CARD}
+	if [ -n ${GW} ]; then
+		echo "GATEWAY=${GW}" >> /etc/sysconfig/ifconfig.${NETWORK_CARD}
+		
+	fi
+	echo "PREFIX=${PREFIX}" >> /etc/sysconfig/ifconfig.${NETWORK_CARD}
+	
+	echo "BROADCAST=${BROADCAST}" >> /etc/sysconfig/ifconfig.${NETWORK_CARD}
+	echo "IFACE=${NETWORK_CARD}" >> /etc/sysconfig/ifconfig.${NETWORK_CARD}
+	if [ -n "${DNS}" ]; then
+		dialog \
+		--title  "DNS Search Suffix " \
+		--inputbox "Enter the domain name,\
+		this is only need if you are in a subdomain.\
+		Most of the time it's not need: " 10 60 2> $TMP/SUFFIX
+		SUFFIX=$(tail -n 1 $TMP/SUFFIX)
+		echo "nameserver ${DNS}" > /etc/resolv.conf
+		
+		if [ -n "${SUFFIX}" ]; then
+			echo "search ${SUFFIX}" >> /etc/resolv.conf
+		
+		fi
+	fi
+fi
+cat > /etc/sysconfig/network << "EOF"
+HOSTNAME='dracos'        # Hostname of this machine
+MANAGER=''              # Network manager (wicd/networkmanager/cli/nothing)
+NETWORKWAIT='no'        # Wait or not for network
+LINKDELAY='15'          # init delay for initialisation of Networkmanager
+NETWORKDELAY='0'        # init delay to wait after initialisation of Networkmanager
+EOF
+clear
+ifdown ${NETWORK_CARD}
+
+ifup ${NETWORK_CARD}
+
+
+
+
+
+}
+
+
+
+
+select_disk() {
+	local retval result
+	retval=""
+	result=""
+	while [ "$retval" == "" ]; do
+		dialog --title "Disk" \
+		--menu  \
+		"choose the disk you want to use for this operation  " \
+		0 0 0  \
+		`for DISK in $DISK_LIST; do  lsblk -p -n -d -o NAME,SIZE $DISK; done` \
+		2> $TMP/disk
+		retval=$?
+		result=`cat $TMP/disk`
+        
+	done
+	case $retval in
+		0)
+			if [ "$result" == "" ]; then
+				retval=""
+			fi;;
+		1|255)
+			break;;
+	esac
+	DISK=`cat $TMP/disk|sed 's/"//g'`
+	
+        if [ -z $DISK ]; then
+		DISK="no"
+	fi
+}
+select_partition() {
+	local retval result
+	retval=""
+	result=""
+	while [ "$retval"  == "" ]; do
+		dialog --cancel-label "partition " \
+		--title "  " \
+		--menu "Choose the partition you want to use for this operation " \
+		0 0 0 \
+		`for PARTITION in ${PARTITION_LIST}; do lsblk -d -p -n -o NAME,SIZE $PARTITION; done`  2>$TMP/part
+		retval=$?
+		result=`cat $TMP/part`
+                cp $TMP/part $TMP/pout
+		case $retval in
+			0)
+				if [ "$result" == "" ]; then
+					retval=""
+				fi;;
+			1|255)
+				break;;
+		esac
+	done
+	PARTITION=`cat $TMP/part|sed 's/"//g'|sed 's/ //g'`
+	if [ -z $PARTITION ];then
+		dialog --no-cancel \
+		--title " No partition available " \
+		--msgbox " Please create/modify yours partitions " 0 0
+		setup_partition
+	fi
+}
+
+
+check_available_disk() {
+	unset DISK_LIST
+	local DISK_FULL_LIST
+	DISK_FULL_LIST=`lsblk -p -n -d -o NAME -e 1,3,7,11`
+	for i in $DISK_FULL_LIST; do
+		[ "`lsblk -p -n -d -o LABEL $i`" == "nutyxcd" ] && continue
+		DISK_LIST="$DISK_LIST $i"
+	done
+	if [ -z "$DISK_LIST" ]; then
+		dialog --no-cancel \
+		--title " No disk available " \
+		--msgbox " Please stop the PC and install a harddisk " 6 60
+	else
+		# Only one disk ?
+		if [ `echo $DISK_LIST|wc -w` -eq 1 ]; then
+			DISK=$DISK_LIST
+			echo "$DISK_LIST" > $TMP/disk
+		fi
+		CHECK_HD_OK="yes"
+	fi
+}
+
+
+check_available_partition() {
+	unset PARTITION_LIST
+	local PARTITION_FULL_LIST
+	if [ "$CHECK_HD_OK" == "no" ]; then
+		check_available_disk
+		 [ "$CHECK_HD_OK" == "no" ] && return
+	fi
+	PARTITION_LIST=`for i in $DISK_LIST; do lsblk -p -l -n -o NAME $i| tail -n +2; done`
+	if [ -z "$PARTITION_LIST" ];then
+		dialog --no-cancel \
+		--title " No partition available " \
+		--msgbox " Please create/modify yours partitions " 0 0
+		CHECK_PART_OK="no"
+		setup_partition
+	else
+		check_swap
+		for i in ${SWAP_LIST}
+		do
+			PARTITION_LIST=`echo ${PARTITION_LIST}| sed "s@$i@@"`
+		done
+		# Only one partition ?
+		if [ `echo $PARTITION_LIST|wc -w` -eq 1 ];then
+			# Only one disk
+			if [ `echo $DISK_LIST|wc -w` -eq 1 ]; then
+				PARTITION=`echo $PARTITION_LIST|sed 's/ //g'`
+				echo "PARTITION=$PARTITION" > /dev/tty2
+				CHECK_SINGLE_PARTITION="yes"
+				echo "CHECK_SINGLE_PARTITION=$CHECK_SINGLE_PARTITION"  > /dev/tty2
+			fi
+		fi
+		CHECK_PART_OK="yes"
+	fi
+}
+	
+setup_partition() {
+	unset DISK_LIST
+	unset PARTITION_LIST
+	unset DISK
+	local retval result
+	check_available_disk
+	[ "$CHECK_HD_OK" == "no" ] && return
+	retval=""
+	if [ -z $DISK ]; then
+		select_disk "Create all your partitions"
+		[ "$DISK" == "no" ] && return
+	fi
+	dialog --title " Choose your favorite tool " \
+	--menu "Partitioning of the disk : $result" 15 55 2 \
+	"cfdisk" "Basic partitioning tool" \
+	"fdisk" "Advanced partitioning tool" 2>$TMP/choix
+	retval=$?
+	choice=`cat $TMP/choix`
+	case $retval in
+		0|2)
+			case $choice in
+				cfdisk)
+					cfdisk $DISK;;
+				fdisk)
+					fdisk $DISK;;
+			esac
+			;;
+		1|2544)
+			break;;
+	esac
+	check_available_partition
+}
+
+
+setup_format() {
+	local retval retval2 result
+	retval=""
+	retval2=""
+	if [ "$CHECK_HD_OK" == "no" ]; then
+		check_available_disk
+		[ "$CHECK_HD_OK" == "no" ] && return
+	fi
+	if [ "$CHECK_PART_OK" == "no" ]; then
+		check_available_partition
+		[ "$CHECK_PART_OK" == "no" ] && return
+	fi
+	if [ -z "$PARTITION" ]; then
+		select_partition "Format a partition"
+		[ "$PARTITION" == "no" ] && return
+	fi
+	dialog --title " Available file systems " \
+	--colors --menu " Choose the file system you want to use for the partition \
+\Zb\Z1$PARTITION\Zn" 0 0 0 \
+		"ext4" "Next generation of Ext3 file system (recommended)" \
+                "btrfs" "New promising file system   (recommended)" \
+		"ext3" "Journaling version of Ext2 file system"  \
+		"ext2" "Standard file system Ext2" \
+		"reiserfs" "Very stable file system but not maintain anymore" \
+		"xfs" "High performance journaling file system create by SGI" \
+                "jfs" "Journaling file system create by IBM" \
+		2> $TMP/result
+		result=`cat $TMP/result`
+		if [ ! "$result" == "" ]; then
+			dialog --title " Launch the format process ? " \
+			--colors --yesno "The partition \Zb\Z1$PARTITION\Zn \
+will be formatted in  \Zb\Z1$result\Zn.\n\n\
+Are you sure you want to continue ? " 7 60
+				retval2=$?
+		fi
+		case $retval2 in
+			0)
+				case $result in
+					ext2)
+						mkfs.ext2 -F $PARTITION > /dev/tty2 || error "mkfs.ext2 $PARTITION"
+						;;
+					ext3)
+						mkfs.ext3 -F $PARTITION > /dev/tty2 || error "mkfs.ext3 $PARTITION"
+						;;
+					ext4)
+						mkfs.ext4 -F $PARTITION > /dev/tty2 || error "mkfs.ext4 $PARTITION"
+						;;
+					reiserfs)
+						mkreiserfs -q $PARTITION > /dev/tty2 || error "mkreiserfs -q $PARTITION"
+						;;
+					btrfs)
+						mkfs.btrfs -f $PARTITION > /dev/tty2 || error "mkfs.btrfs -f $PARTITION"
+						;;
+					xfs)
+						mkfs.xfs -f -m crc=0 $PARTITION > /dev/tty2 || error "mkfs.xfs -f $PARTITION"
+						;;
+					jfs)
+						mkfs.jfs -f $PARTITION > /dev/tty2 || error "mkfs.jfs -f $PARTITION"
+						;;
+				esac;;
+			1|255)
+				break;;
+		esac
+	#	FORMAT=`print_file_system $PARTITION`
+
+}
+root_pwd()  ################## fungsi #####################
+{
+
+dialog --clear --backtitle "dracOs `uname -m` GNU/Linux installer "  --title "-- ROOT password --" --colors --yesno "\n Do you want to change root password   " 10 40
+if [ $? = 0 ] ; then
+clear
+passwd root 
+fi
+
+}
+choose_available_ESSID() {
+[ -z $"WIFI_NETWORK_CARD" ] && WIFI_NETWORK_CARD=`cat $TMP/result|sed 's/"//g'`
+
+DEVTYPE=`/sbin/udevadm info /sys/class/net/$WIFI_NETWORK_CARD | grep DEVTYPE | cut -d"=" -f2`
+if [ "$DEVTYPE" = "wlan" ]; then
+	echo -n "--backtitle \"Networks \" \
+	--title \" $1 \" \
+	--colors \
+	--radiolist \"Choose the name of the wireless access point (ESSID) \" 0 0 0 " > $TMP/networks
+
+	NETWORKS=`iwlist $WIFI_NETWORK_CARD scanning 2>/dev/null | grep "ESSID:" | cut -d"\"" -f2 | grep -v "\\x00"`
+	[ -z "$NETWORKS" ] && return
+	for i in $NETWORKS; do
+		echo -n \""$i"\" \""$i"\" " off "
+	done >> $TMP/networks
+
+	dialog --file $TMP/networks 2>$TMP/result
+	retval=$?
+	result=`cat $TMP/result`
+	case $retval in
+		0)
+			if [ "$result" != "" ]; then
+				ESSID=`cat $TMP/result`
+				echo -n "--title \" $1 \" \
+				--colors \
+				--passwordbox \" Enter the password of (PASSPHRASE): \Zb\Z4$ESSID\Zn \" 0 0" > $TMP/passwd
+				dialog --insecure --file $TMP/passwd 2>$TMP/result
+				retval=$?
+				result=`cat $TMP/result`
+				case $retval in
+					0)
+						if [ "$result" != "" ]; then
+							KEY=`cat $TMP/result`
+							WPA_FILE=/etc/wpa_supplicant.conf.${NETWORK_CARD}
+							[ -f $WPA_FILE ] && mv $WPA_FILE ${WPA_FILE}.old
+							wpa_passphrase "$ESSID" "$KEY" > $WPA_FILE
+							chmod 600 ${WPA_FILE}
+						fi ;;
+					1|255)
+						if [ "$result" != "" ]; then
+							break
+						fi ;;
+				esac
+				rm $TMP/result
+			fi ;;
+		1|255)
+			if [ "$result" != "" ]; then
+				break
+			fi ;;
+	esac
+fi
+
+}
+setup_wireless()
+{
+	local TITLE WPA_FILE returncode WPA_TOOL ESSID KEY
+	WPA_TOOL="`which wpa_passphrase`"
+	IWCONFIG="`which iwconfig`"
+
+	if [ ! -z $IWCONFIG ];then
+		WIFI_NETWORK_CARD="`$IWCONFIG 2>&1|grep IEEE|cut -d " " -f1|tail -1`"
+       
+	fi
+	if [ -z ${WIFI_NETWORK_CARD} ];then
+                dialog --clear --backtitle "dracOs `uname -m` GNU/Linux installer "  --title "-- Coution! -- " --colors --yesno "no wireles card or wireless card detectable by any other name\ndo you want to continue ...  " 10 90
+      			if [ $? = 1 ] ; then
+				clear
+                                print_help
+			        exit 0
+      		fi
+		network_card_found
+		[ -z ${NETWORK_CARD} ] && return
+		WIFI_NETWORK_CARD=${NETWORK_CARD}
+        
+	fi
+	TITLE="Configuration of a wireless access point for \Zb\Z1${WIFI_NETWORK_CARD}\Zn"
+
+	ESSID=""
+	KEY=""
+	choose_available_ESSID "$TITLE"
+	while [ "$ESSID" == "" ];
+	do
+		exec 3>&1
+		ESSID=`dialog  --title " $TITLE " \
+		--colors \
+		--inputbox "Choose the name of the wireless access point (ESSID)" \
+		0 0 ""	2>&1 1>&3`
+		ESSID="`echo "$ESSID"|sed "s/ //g"`"
+	done
+
+	while [ "$KEY" == "" ];
+	do
+		exec 3>&1
+		KEY=`dialog --title " $TITLE " \
+		--colors \
+		--inputbox "Enter the password of (PASSPHRASE): \Zb\Z4$ESSID\Zn" \
+		0 0 ""  2>&1 1>&3`
+		KEY="`echo "$KEY"|sed "s/ //g"`"
+	done
+
+	WPA_FILE="/etc/wpa_supplicant.conf.${WIFI_NETWORK_CARD}"
+	rm -f $WPA_FILE
+
+	[ -z $WPA_TOOL ] || $WPA_TOOL "$ESSID" "$KEY" > $WPA_FILE
+	chmod 600 $WPA_FILE
+
+	if [ -f $WPA_FILE ]; then
+		dialog --clear --title " $TITLE " \
+		--colors \
+		--msgbox  "File \Zb\Z4$WPA_FILE\Zn successfully created" 0 0
+		
+	else
+		dialog  --clear --title " $TITLE " \
+		--colors \
+		--msgbox "\Zb\Z1annot create $WPA_FILE\Zn" 0 0
+	fi
+	SETUP_CONFIG_WIFI="no"
+}
+info_hardware()
+{
+
+CPU_TYPE="`lscpu | grep 'Model name' | cut -d ":" -f2`"
+ARCH_CPU="`uname -m `"
+CORE_CPU="`grep -c ^processor /proc/cpuinfo `" 
+BOGO="`lscpu | grep "Bogo" | cut -d ":" -f2 `" 
+MAX_CPU="`lscpu | grep 'CPU max' | cut -d ":" -f2 `" 
+MOTHERBOARD="`dmesg | grep DMI: | cut -d ":" -f2`"
+VGA_CARD="`lspci  | grep VGA  | cut -d ":" -f3`"
+VRAM_VGA="`dmesg | grep 'VRAM memory' | cut -d ":" -f2`"
+AUDIO_CARD="`lspci  | grep Audio | cut -d ":" -f3`"
+NETWORK_CARD="`lspci | grep Ethernet | cut -d ":" -f3`"
+RAM_TOTAL="`grep MemTotal /proc/meminfo | cut -d ":" -f2`"
+DISK_LIST="`lsblk --output SIZE,NAME,FSTYPE,LABEL,UUID,SERIAL,MOUNTPOINT`"
+
+clear
+echo ""
+echo -e $red "-----------" $BlueF " Hardware information summary  $red ------------ "
+echo ""
+echo -e $white" CPU         :$CPU_TYPE"
+echo " max Speed   :$MAX_CPU"
+echo " ARCH        : $ARCH_CPU"
+echo " Core        : $CORE_CPU"
+echo " BogoMIPS    :$BOGO"
+echo " Motherboard :$MOTHERBOARD"
+echo " RAM         :$RAM_TOTAL "
+echo " VGA         :$VGA_CARD"
+echo " VGARAN      :$VRAM_VGA"
+echo " Sound card  :$AUDIO_CARD"
+echo " Ethernet    :$NETWORK_CARD "
+echo ""
+echo -e $red " --------------------- $BlueF Disk list  $red ------------------- "
+echo -e $white""
+echo " $DISK_LIST"
+
+fs_tab=`cat /etc/fstab`
+echo -e $red " --------------------- $BlueF FSTAB $red ------------------- "
+echo -e $white""
+echo "$fs_tab"
+
+#cyan='\e[0;36m'
+#green='\e[0;34m'
+#okegreen='\033[92m'
+#lightgreen='\e[1;32m'
+#white='\e[1;37m'
+#red='\e[1;31m'
+#yellow='\e[1;33m'
+#BlueF='\e[1;34m'
+
+
+
+
+}
+
+
+update_kernel()
+{
+
+cd /usr/src
+wget -c https://www.kernel.org/pub/linux/kernel/v4.x/sha256sums.asc
+grep -v '^#' sha256sums.asc  | awk '{print $2}' | grep -a tar.xz  >> $TMP/kernlist
+KERN_LIST=`cat  $TMP/kernlist`
+
+let i=0 # define counting variable
+W=() # define working array
+while read -r line; do # process file by file
+    let i=$i+1
+    W+=("$line" $i )
+done < <( cat  $TMP/kernlist )
+FILE=$(dialog --title "List of kernel 4x " --menu "\nChose one\n " 0 0 0  "${W[@]}" 3>&2 2>&1 1>&3) # show dialog and store output
+clear
+if [ $? -eq 0 ]; then # Exit with OK
+   echo $FILE >> $TMP/kernout
+fi
+
+	
+
+
+}
+
+
+######################################################
+################## End OF fungsi #####################
+######################################################
+print_help() {
+   
+        echo " 01      110101   01011      101100    1101    00      00       01101  "
+        echo " 10      01      11            01    10    00  11      11      10      "
+        echo " 00      010000   10101  010   10    01    11  01      10       00100  "
+        echo " 11      00           01       11    11    01  10      01           11 "
+        echo " 011101  10       01001        01      0101    010011  110011   01010  "
+
+	echo -e $white"usage: `basename $COMMAND` [options]"
+	echo "options"
+	echo ""
+        echo "    --all                run all setup without partition "
+        echo "    --hardware-info      show hardware info"
+        echo ""
+        echo "  [spesific option]"
+        echo ""
+        echo "    --keyboard-map       setup Keyboard map "
+        echo "    --time-date          Setup date  "
+        echo "    --time-zone          setup timezone  "
+        echo "    --network            setup Network"
+        echo "    --wireless           setup Wireless"
+        echo "    --partition          partition tools"
+	echo "    -h,   --help         Show the help"
+	echo "    -v,   --version      Show the version"
+}
+
+
+
+parse_options() {
+	if [ $# -lt 1 ]; then
+		print_help
+	else
+		while [ "$1" ]; do
+			case "${1}" in
+				--all)
+					SETUP_CHECKALL="yes"
+                                        ;;
+				--keyboard-map)
+					SETUP_KEYBOARD="yes"
+                                        ;;
+				--time-date)
+					SETUP_DATE="yes"
+                                        ;;
+				--time-zone)
+					SETUP_ZONE="yes"
+					;;
+				--network)
+					SETUP_NET="yes"
+					;;
+				--partition)
+					SETUP_PARTITION="yes"
+					;;
+                                --wireless)
+					SETUP_WIRELESS="yes"
+					;;
+                              #  --update-kernel)
+                               #         KERN_UPDATE="yes"
+                                #        ;;
+                         	--hardware-info)
+					HW_INFO="yes"
+                                        ;;
+				-v|--version)
+					echo "`basename ${COMMAND}` $VERSION"
+					exit 0
+					;;
+				--cal)
+					echo ""
+					;;
+				-h|--help)
+					print_help
+					exit 0
+					;;
+				*)
+					echo "`basename ${COMMAND}`: invalid option $1"
+					exit 1
+					;;
+			esac
+			shift
+		done
+	fi
+}
+
+
+main () {
+
+
+clear
+	parse_options "$@"
+	ALL_LIST=$@
+
+	if [ "$SETUP_CHECKALL" == "yes" ]; then
+               if [ "$ALL_LIST" == "--all" ]; then
+			time_zone
+			setup_keymap
+			setup_clock
+			#root_pwd
+			setup_net
+			exit $?
+               else 
+                        print_help
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --all with another Option  "
+                       
+               fi
+        elif [ "$HW_INFO" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--hardware-info" ]; then
+                          info_hardware
+                 else 
+
+                        print_help
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --hardware-info  with another Option  "
+                 fi
+        elif [ "$KERN_UPDATE" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--update-kernel" ]; then
+                          update_kernel
+                 else 
+                     
+                        print_help
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --update-kernel with another Option  "
+                 fi
+        
+
+        else
+
+  	        if [ "$SETUP_KEYBOARD" == "yes" ]; then
+        	       setup_keymap
+        	fi
+                if [ "$SETUP_DATE" == "yes" ]; then
+               	       setup_clock
+        	fi
+
+                if [ "$SETUP_ZONE" == "yes" ]; then
+               	       time_zone
+        	fi
+
+                if [ "$SETUP_NET" == "yes" ]; then
+               	       setup_net
+        	fi
+
+                 if [ "$SETUP_WIRELESS" == "yes" ]; then
+               	       setup_wireless   
+        	fi
+
+                if [ "$SETUP_PARTITION" == "yes" ]; then
+               	      setup_partition
+                      select_partition
+                      setup_format
+        	fi
+               
+	fi
+}
+
+
+
+
+
+
+
+
+main "$@"
+
+
+
+
+
+
+
