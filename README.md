@@ -64,7 +64,9 @@ for only build initramfs run
 need at lease 20 gb free 
 
 make folder /fakeroot 
+
 make folder /fakroot/live/$(arch) see  uname -m
+
 make folder /fakeroot/squash
 
 note: see error message for mising dir to build it or edit  ./lfskit --config 
