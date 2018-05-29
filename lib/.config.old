@@ -6,7 +6,7 @@
 #
 # --- General Settings
 #
-LIVEKITNAME="lfskit"
+LIVEKITNAME="LFSkit"
 VER_OS="v1"
 CODE_NAME="myown"
 

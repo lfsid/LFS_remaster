@@ -139,7 +139,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 
 	config SRC_ISO
 		string "source base iso  (See Help) "
-		default "$PWDN/baseiso/$(uname -m)"
+		default "$(pwd)/baseiso/$(uname -m)"
 
 	config KERNEL_FILE
 		string "KERNEL (See Help) "
