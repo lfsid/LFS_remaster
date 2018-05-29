@@ -13,7 +13,7 @@ menu "--- General Settings"
 			#-- OS version 
 	config CODE_NAME
 		string "code name "
-		default "myown"
+		default "myOS"
 		help
 			#-- code name for distro
 	comment " "
