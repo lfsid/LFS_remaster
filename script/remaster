@@ -92,7 +92,7 @@ echo ""
 
 	cd $TGT_SQUASHFS
          echo "//   making a squashfs file $TGT_SQUASHFS_FILE "
-        $TERMINAL_TOOLS  mksquashfs . $TGT_SQUASHFS_FILE -comp xz
+        $TERMINAL_TOOLS  mksquashfs . $TGT_SQUASHFS_FILE 
 }
 
 copying_squashfs(){
