@@ -3,17 +3,17 @@
 menu "--- General Settings"
 	config LIVEKITNAME
 		string "live kit name "
-		default "dracOs"
+		default "LFSkit"
 		help
 			#-- live kit name and folder name in dist.iso/$LIVEKITNAME
 	config VER_OS
 		string "Version of OS "
-		default "v3"
+		default "v1"
 		help
 			#-- OS version 
 	config CODE_NAME
 		string "code name "
-		default "kunti"
+		default "myown"
 		help
 			#-- code name for distro
 	comment " "

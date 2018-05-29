@@ -6,9 +6,9 @@
 #
 # --- General Settings
 #
-LIVEKITNAME="myLFSOS"
-VER_OS="V1"
-CODE_NAME="test"
+LIVEKITNAME="lfskit"
+VER_OS="v1"
+CODE_NAME="myown"
 
 #
 #  
