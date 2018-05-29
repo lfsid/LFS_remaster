@@ -65,6 +65,7 @@ copying_root(){
 }
 
 copying_baseiso(){
+        rm -rf -v $TGT_LIVE_DISK >/dev/null 2>/dev/null
 	cp -vpR $SRC_ISO/* $TGT_LIVE_DISK >/dev/null 2>/dev/null
         cp -vpR $PWDN/bootlogo.png $TGT_LIVE_DISK/boot >/dev/null 2>/dev/null
         cp -vpR /boot/initrd.img-$(uname -r)-build $TGT_LIVE_DISK/boot/initrfs.img >/dev/null 2>/dev/null
@@ -97,6 +98,25 @@ echo ""
 copying_squashfs(){
          echo "//   moving $TGT_SQUASHFS_FILE to $TGT_LIVE_DISK/$LIVEKITNAME/ "
 	 mv $TGT_SQUASHFS_FILE $TGT_LIVE_DISK/$LIVEKITNAME/
+}
+
+build_iso(){
+echo ""
+echo "what you will make it into $LIVEKITNAME-$(uname -m).iso"
+echo ""
+read -rsp $'Press any key to continue...\n' -n1 key
+echo "" 
+	echo "//   make live iso "
+	cd $TGT_REMASTER/live 
+        xorrisofs -o $TGT_REMASTER/$LIVEKITNAME-$(uname -m).iso     \
+          -b boot/isolinux/isolinux.bin \
+          -c boot.cat                   \
+          -no-emul-boot                 \
+          -boot-load-size 4             \
+          -boot-info-table              \
+          -joliet -l -R                 \
+          $TGT_LIVE_DISK
+
 }
 
 #######################

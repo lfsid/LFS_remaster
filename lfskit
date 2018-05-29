@@ -62,7 +62,10 @@ build_live(){
         squashing_
         copying_squashfs
         deploy_sys_iso_linux
-
+	build_iso
+	echo ""
+	echo " DONE "
+	echo ""
 
 
 }

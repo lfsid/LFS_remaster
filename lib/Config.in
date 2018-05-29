@@ -17,6 +17,18 @@ menu "--- General Settings"
 		help
 			#-- code name for distro
 	comment " "
+
+	config TGT_LIVE_DISK_FILE
+		string "Target iso location  & iso name "
+		default "$TGT_REMASTER/LFS.iso"
+		help
+			#
+                        # $TGT_REMASTER istarget temporary remaster file,
+                        # please don't edit it if you don't know what are u doing 
+			# you only can edit after $TGT_REMASTER/
+
+	comment " "
+
 	config TGT_TMP
 		string "temp work dir "
 		default "/tmp"
