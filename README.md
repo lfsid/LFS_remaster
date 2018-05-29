@@ -31,7 +31,7 @@ remastering tools for lfs based os
  you must compile a kernel with aufs patch visit
  https://github.com/sfjro/aufs4-linux/blob/aufs4.x-rcN/Documentation/admin-guide/README.rst
 
-initramfs 
+# initramfs 
      
 compare between linux live script & kolomonggo-init
      
@@ -39,7 +39,7 @@ Author of linux live kit : Tomas M <http://www.linux-live.org/>
      
 Author of kolomonggo init: purnomo hadi <purnomo.shinigami@gmail.com>
      
-initswitch beetwen systemd and sysvinit only for kolomonggo linux system hyrarki 
+ 
 
 
 
