@@ -110,7 +110,7 @@ else
 fi
  sleep 1
 
-if [ "$SETUP_REMASTERING" == "yes" ]; then
+
 	if [ -f "$KERNEL_FILE" ];
 	then
    		echo "kernwl $KERNEL_FILE     yes"
@@ -123,7 +123,7 @@ if [ "$SETUP_REMASTERING" == "yes" ]; then
                echo ""
                exit 1
 	fi
-fi 
+ 
 
 
 
