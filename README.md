@@ -71,25 +71,8 @@ make folder /fakeroot/squash
 
 note: see error message for mising dir to build it or edit  ./lfskit --config 
 
-run 
+built initramfs, remastering and built iso
 
  ./lfskit --remaster
  
-# building iso 
-
-to build iso open terminal
-cd to /fakroot/live
-
-run 
-
-xorrisofs -o distro-name.iso     \
-          -b boot/isolinux/isolinux.bin \
-          -c boot.cat                   \
-          -no-emul-boot                 \
-          -boot-load-size 4             \
-          -boot-info-table              \
-          -joliet -l -R                 \
-          $(arch) 
-
-
-
+ 
