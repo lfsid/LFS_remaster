@@ -1,7 +1,6 @@
 # LFS_remaster
 
-# not complete yet
-
+v1.10
 
 remastering tools for lfs based os 
 
