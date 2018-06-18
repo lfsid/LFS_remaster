@@ -135,7 +135,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 			#-- point to LIVEKITNAME
 	config INITRD_FILE
 		string "initrd file (See Help) "
-		default "/boot/init.img-$(uname -r)-build"
+		default "/boot/initrd.img-$(uname -r)-build"
 
 	config SRC_ISO
 		string "source base iso  (See Help) "
@@ -154,7 +154,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config EFS_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$EFS_FILE"
+				default "http://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.43.4/$EFS_FILE"
 			
 		comment "util-linux"
 			config UTILS_LINUX_FILE
@@ -163,7 +163,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config UTILS_lINUX_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$UTILS_LINUX_FILE"
+				default "https://www.kernel.org/pub/linux/utils/util-linux/v2.29/$UTILS_LINUX_FILE"
 
 		comment "Busybox"
 			config BUSYBOX_FILE
@@ -172,7 +172,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config BUSYBOX_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$BUSYBOX_FILE"
+				default "https://busybox.net/downloads/$BUSYBOX_FILE"
 
 		comment "ncurses"
 			config NCURSES_FILE
@@ -181,7 +181,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config NCURSES_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$NCURSES_FILE"
+				default "http://ftp.gnu.org/gnu//ncurses/$NCURSES_FILE	"
 
 		comment "Zlib"
 			config ZLIB_FILE
@@ -190,7 +190,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config ZLIB_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$ZLIB_FILE"
+				default "http://downloads.sourceforge.net/libpng/$ZLIB_FILE"
 	
         	comment "netplug + patch"
 			config NETPLUG_FILE
@@ -202,13 +202,13 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config NETPLUG_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$NETPLUG_FILE"
+				default "http://www.red-bean.com/~bos/netplug/$NETPLUG_FILE"
 			
 
 				
 			config NETPLUGP_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$NETPLUGP_FILE"
+				default "http://patches.clfs.org/embedded-dev/$NETPLUGP_FILE"
 
 		comment "dropbear"
 			config DROPBEAR_FILE
@@ -217,7 +217,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config DROPBEAR_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$DROPBEAR_FILE"
+				default "http://matt.ucc.asn.au/dropbear/releases/$DROPBEAR_FILE"
 	
         	comment "wireless tools"
 			config WT_FILE
@@ -226,7 +226,7 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config WT_SRC
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$WT_FILE"
+				default "http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/$WT_FILE"
 
 		comment "grub os prober"
 			config GRUB_OSPROBERFILE
@@ -235,30 +235,12 @@ menu "--- Dveloper Setting (WARNING: for  developers only)"
 				
 			config GRUB_OSPROBER
 				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$GRUB_OSPROBERFILE"
+				default "http://http.debian.net/debian/pool/main/o/os-prober/$GRUB_OSPROBERFILE"
 
         	comment "dialog "
 			config DIALOG_FILE
 				string " "
 				default "dialog.tar.gz"
-		comment "popt"
-			config POPT_FILE
-				string " "
-				default "popt-1.16.tar.gz"
-				
-			config POPT_SRC
-				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$POPT_FILE"
-
-		comment "rsync"
-			config RSYNC_FILE
-				string " "
-				default "rsync-3.1.3.tar.gz"
-				
-			config RSYNC_SRC
-				string " "
-				default "https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$RSYNC_FILE"
-
 
 
 

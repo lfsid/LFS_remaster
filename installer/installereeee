@@ -1,27 +1,19 @@
-#!/bin/sh
+#!/bin/bash
+
+# created by purnomo hadi 
+# installation tools for kolomonggo linux and dracOs linux 
+# under GPL 2 / newer licency 
+# coyright april 2018 
 
 
 . /lib/.config
-#cd /$LIVEKITNAME/union
 . /lib/msg 
 . /lib/livekitlib
 
+readonly COMMAND="$0"
 
-
-#
-# installation-help for $LIVEKITNAME
-# 22.05.2007
-#
-# shell script for installation of $LIVEKITNAME to harddisk
-#
-# written by Thomas Schoenhuetl <pilleus.pulcher@arcor.de> 22.05.2007
-# modfification by purnomo hadi and edo Maland
-# It contains parts of the official Slackware installer.
-#
-# This shell script is contributed under the terms of GPL v2 by Thomas Schoenhuetl <pilleus.pulcher@arcor.de> 22.05.2007.
-#
-#Installer $LIVEKITNAME Linux  Gnu/Linux version 2.0
-
+readonly SETUP_ARCH="`uname -m`"
+readonly VERSION="1.0"
 
 MEMORY=/memory
 CHANGES=$MEMORY/changes
@@ -29,85 +21,10 @@ UNION=$MEMORY/union
 DATAMNT=$MEMORY/data
 BUNDLES=$MEMORY/bundles
 
-printf_new() {
- #str=$1
- num=$1
- v=$(printf "%-${num}s" "#")
- echo -ne "${v// /#}"
-}
-
-
-
 TMP=/tmp/tmp
-rm -rf $TMP 2>/dev/null
 if [ ! -d $TMP ]; then
   mkdir -p $TMP
 fi
-REDIR=/dev/tty4
-NDIR=/dev/null
-crunch() {
- read STRING;
- echo $STRING;
-}
-
-#####################################################
-# SOME COLOURS BIAR COOL
-#####################################################
-cyan='\e[0;36m'
-green='\e[0;34m'
-okegreen='\033[92m'
-lightgreen='\e[1;32m'
-white='\e[1;37m'
-red='\e[1;31m'
-yellow='\e[1;33m'
-BlueF='\e[1;34m'
-
-CYAN='\033[1;36m'
-WHITE='\033[1;37m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-RED='\033[1;31m'
-
-
-####################################################
-#
-####################################################
-
-
-
-install_c(){
- echo ""
- echo "// installing with rsync "
- echo ""
- rsync --info=progress2 -a $UNION/ /mnt/`cat $TMP/pout | cut -b 6-9`/ 
- sleep 5
- clear
-}
-
-#cp  --preserve -R  /{bin,boot,etc,home,lib,root,sbin,srv,usr,var,opt,lib64} /mnt/`cat $TMP/pout | cut -b 6-9`/ 2>/dev/null
-#rsync -pavr /mnt/live/memory/bundles/root.sfs/*  /mnt/`cat $TMP/pout | cut -b 6-9`/ 2>/dev/null
-
-####################################################
-####################################################
-#rm /data-manifest 2>/dev/null
-clear
-
-mkdir $MEMORY/union/dev
-mkdir $MEMORY/union/proc
-mkdir $MEMORY/union/sys
-mkdir $MEMORY/union/run
-mkdir $MEMORY/union/tmp
-clear
-
-#mount -v --bind /dev $MEMORY/union/dev
-
-
-#mount -vt devpts devpts $MEMORY/union/proc/dev/pts -o gid=5,mode=620
-#mount -vt proc proc $MEMORY/union/proc
-#mount -vt sysfs sysfs $MEMORY/union/sys
-#mount -vt tmpfs tmpfs $MEMORY/union/run
-
-clear 
 
 echo "//   checking installation of dialog"
 
@@ -121,15 +38,42 @@ else
 fi 
 sleep 3
 
-#dialog --clear  --backtitle "$BACK_TITLE "  --title " -- ABOUT -- " --colors --msgbox "$CUSTOM_MSG " 23 75
-mkdir /tmp/$LIVEKITNAME/ 2>/dev/null
+clear
 
-#dialog --clear --backtitle "$BACK_TITLE "  --title "-- GENERAL INFORMATION --" --colors --yesno "$CUSTOM_MSG2" 20 110
-#if [ $? = 1 ] ; then
-#exit
-#fi
+KERNEL_MODULES="$(uname -r)"
 
-       clear
+PWDN=$(pwd)
+
+##################
+#### function ####
+##################
+
+
+print_help() {
+        echo -e $white
+        clear
+	echo ""
+        echo " 01      110101   01011           "
+        echo " 10      01      11                 "
+        echo " 00      010000   10101  "
+        echo " 11      00           01  "
+        echo " 011101  10       01001  "
+        echo""
+        echo "installer  for lfs based os"
+        echo "created by purnomo hadi fb:purnomo.shinigami purnomo.shinigami@gmail.com ,"
+        echo "under GPLv2 or later license. LFS based OS with AUFS and squashfs tools . "
+        echo ""
+        echo -e $white"usage: `basename $COMMAND` [options]"
+	echo "options"
+	echo ""
+        echo " --run      	 run the installation"
+        echo " -h,   --help      Show the help"
+	echo " -v,   --version   Show the version"
+
+}
+
+greeting() {
+        clear
 	echo ""
         echo " 01      110101   01011           "
         echo " 10      01      11                 "
@@ -172,13 +116,26 @@ mkdir /tmp/$LIVEKITNAME/ 2>/dev/null
     read -rsp $'Press any key to continue...\n' -n1 key
 
 
+}
 
+tweaking() {
+	dialog --clear --backtitle "$BACK_TITLE  "  --title "-- ROOT password --" --colors --yesno "\n Do you want to change root password   " 10 40
+	if [ $? = 0 ] ; then
+		clear
+		chroot  /mnt/`cat $TMP/pout | cut -b 6-9` /bin/passwd root 
+	fi
 
+        dialog --clear --backtitle "$BACK_TITLE  "  --title "-- TWEAKS --" --colors --yesno "\n running tools like time zone, keyboard, etc.   " 10 40
+		if [ $? = 0 ] ; then
+		clear
+		chmod 755   /mnt/`cat $TMP/pout | cut -b 6-9`/usr/bin/lfs-tools 2>/dev/null
+		chroot   /mnt/`cat $TMP/pout | cut -b 6-9`/usr/bin/lfs-tools --all
+	fi
 
+} 
+select_disk() {
+	umount /mnt/* 2>/dev/null
 
-
-# umount harddisk for running cfdisk
-umount /mnt/* 2>/dev/null
 
 # run cfdisk to partition the harddrive
 dialog --clear --backtitle "$BACK_TITLE "  --title "-- PARTITION THE HARDDISK --" --colors --yesno "$MSG_CFDISK" 20 110
@@ -232,10 +189,9 @@ rm -f $TMP/drivelist $TMP/tmpscript $TMP/tmpanswer
 
 
 
-##################
-#  SWAP removed  #
-#  error lbgmp   #
-##################
+}
+
+formating() {
 
 # format root partition
 fdisk -l | grep Linux | sed -e '/swap/d' | cut -b 1-9 > $TMP/pout 2>/dev/null
@@ -243,7 +199,7 @@ partprobe `cat $TMP/pout |  cut -b 1-8`
 
 #lsblk -fpl  | awk '{print $1}' | grep -e "sd" -e "hd" > $TMP/disk-list 2>/dev/null
 
-fdisk -l  | grep -e '^/dev/sd*'  -e '^/dev/hd*' | awk '{print $1 "   " $5 "   " $7 }' >> $TMP/disk-list 2>/dev/null
+fdisk -l  | grep -e '^/dev/sd*'  -e '^/dev/hd*' | awk '{print $1 "   " $5 "   " $7 }' $TMP/disk-list 2>/dev/null
 clear
 echo ""
 echo " installer has detected : "
@@ -253,14 +209,17 @@ cat $TMP/disk-list
 echo ""
 echo "In the next box you can choose the linux filesystem "
 echo "for your root partition if you have more than one partitions!"
-echo ""
-   read -rsp $'Press any key to continue...\n' -n1 key
+
 
 clear
 
+#dialog --clear --backtitle "$BACK_TITLE "  --title " -- ROOT PARTITION DETECTED -- " --exit-label OK  --colors --msgbox "\n\n  $LIVEKITNAME  installer has detected \n\n $(cat d) \n\nas your   linux partition(s).\n\n In the next box you can choose the linux filesystem for your root partition or choose the partition if you have more than one linux partitions!" 20 80
+#if [ $? = 1 ] ; then
+#exit
+#fi
 
 # choose root partition
-dialog --clear --backtitle "$BACK_TITLE "  --title " -- CHOOSE ROOT PARTITION -- " --colors --inputbox "\n\n Please give me your preferred   root partition  in this way:\n\n Write /dev/sdax \n  Example :   /dev/sda1 \n\nNOTE : \n x :  Number of the partition\n\n\n " 20 80 2> $TMP/pout
+dialog --clear --backtitle "$BACK_TITLE "  --title " -- CHOOSE ROOT PARTITION -- " --colors --inputbox "\n\n Please give me your preferred   root partition  in this way:\n\n Write /dev/hdax \n  Example :  2 for   /dev/hda2 \n\nNOTE : \n x :  Number of the partition\n\n\n " 20 80 2> $TMP/pout
 
 dialog --clear --backtitle "$BACK_TITLE "  --title " -- FORMAT ROOT PARTITION -- " --radiolist "Now you can choose the filesystem for your root partition.\n\n ReiserFS is the recommended filesystem. to /mnt/`cat $TMP/pout | cut -b 6-9`/" 10 70 0 \
 "1" "ext2" off \
@@ -313,6 +272,9 @@ dialog --clear --backtitle "$BACK_TITLE "  --title " -- COPYING THE SYSTEM -- " 
 if [ $? = 1 ] ; then
 exit
 fi
+}
+
+installtion_process() {
 
 
 
@@ -325,9 +287,9 @@ clear
 echo "//   check os-prober is already installed"
 cp-gnu -pR /custom/* /mnt/`cat $TMP/pout | cut -b 6-9`/ &>/dev/null
 
-if [ -f "/mnt/`cat $TMP/pout | cut -b 6-9`/usr/bin/os-prober" ]; then
-	echo "//   Os-prober not found . installing"
-       
+if [ -f "$UNION/usr/bin/os-prober" ]; then
+	 echo "//   Os-prober not found . installing"
+           
 	cp-gnu -pR /os-prober/* /mnt/`cat $TMP/pout | cut -b 6-9`/ &>/dev/null
 else 
         echo "//   Os-prober found . skipping"
@@ -369,6 +331,11 @@ echo "tmpfs /run tmpfs defaults 0 0" >> /mnt/`cat $TMP/pout | cut -b 6-9`/etc/fs
 echo "devtmpfs /dev devtmpfs mode=0755,nosuid 0 0" >> /mnt/`cat $TMP/pout | cut -b 6-9`/etc/fstab 2>/dev/null
 
 
+}
+
+grub_install() {
+
+
 
 # prepare installation of grub
 mount --bind /dev /mnt/`cat $TMP/pout | cut -b 6-9`/dev
@@ -380,23 +347,6 @@ mount -vt sysfs sysfs /mnt/`cat $TMP/pout | cut -b 6-9`/sys
 #cp-gnu --preserve -R /etc/grub.d.deb/* /mnt/`cat $TMP/pout | cut -b 6-9`/etc/grub.d/ 2>/dev/null
 #cp -f /.bashrc  /mnt/`cat $TMP/pout | cut -b 6-9`/root/.bashrc
 
-
-	dialog --clear --backtitle "$BACK_TITLE  "  --title "-- ROOT password --" --colors --yesno "\n Do you want to change root password   " 10 40
-	if [ $? = 0 ] ; then
-		clear
-		chroot  /mnt/`cat $TMP/pout | cut -b 6-9` /bin/passwd root 
-	fi
-
-        dialog --clear --backtitle "$BACK_TITLE  "  --title "-- TWEAKS --" --colors --yesno "\n running tools like time zone, keyboard, etc.   " 10 40
-		if [ $? = 0 ] ; then
-		clear
-		cp-gnu /pkg//lfs-tools  /mnt/`cat $TMP/pout | cut -b 6-9`/usr/bin/ 2>/dev/null
-		chmod 755   /mnt/`cat $TMP/pout | cut -b 6-9`/usr/bin/lfs-tools 2>/dev/null
-		chroot   /mnt/`cat $TMP/pout | cut -b 6-9` /usr/bin/lfs-tools --all
-	fi
-
-
-
 dialog --clear --backtitle "$BACK_TITLE "  --title " -- Installing GRUB Boot loader -- " --colors --radiolist "\n\n Now you can choose   install grub  or if you have   grub before  and use it please select   no .to /mnt/`cat $TMP/pout | cut -b 6-9`/" 10 70 0 \
 "1" "yes" on \
 "2" "no" off \
@@ -407,11 +357,9 @@ fi
 
   if [ `cat $TMP/part2` = "1" ] ; then
 
-    dialog --backtitle "$BACK_TITLE "  --title " -- Installing GRUB Boot loader -- " --colors --msgbox "\n\n   Grub-install `cat $TMP/pout |  cut -b 1-8` --force --boot-directory=/boot" 10 75
+    dialog --backtitle "$BACK_TITLE "  --title " -- Installing GRUB Boot loader -- " --colors --msgbox "\n\n   Grub-install `cat $TMP/pout |  cut -b 1-8` --force --boot-directory=/mnt/`cat $TMP/pout |  cut -b 6-9`/boot" 10 75
    
-   chroot /mnt/`cat $TMP/pout |  cut -b 6-9` /sbin/grub-install `cat $TMP/pout |  cut -b 1-8` --force --boot-directory=/boot
-    
- 
+   chroot /mnt/`cat $TMP/pout |  cut -b 6-9`/sbin/grub-install `cat $TMP/pout |  cut -b 1-8` --force --boot-directory=/boot
 
      ################################################
      # remove uneeded grub my be make stuck on boot #
@@ -421,7 +369,7 @@ fi
 
     chroot /mnt/`cat $TMP/pout |  cut -b 6-9` /sbin/grub-mkconfig -o /boot/grub/grub.cfg
    # chroot /mnt/`cat $TMP/pout |  cut -b 6-9` /usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg
-  sleep 3
+
   fi
   if [ `cat $TMP/part2` = "2" ] ; then
 
@@ -431,13 +379,6 @@ fi
 	reboot
       fi
   fi
-
-
-
-
-
-
-
 dialog --clear --backtitle "$BACK_TITLE "  --title "-- INSTALLATION FINISHED -- " --colors --yesno "\n\n Now $LIVEKITNAME Installer has finished the installation.\n\nPlease   reboot the system or continue testing  " 10 70
 if [ $? = 0 ] ; then
 clear
@@ -445,7 +386,79 @@ reboot
 fi
 
 
-rm -R $TMP
+}
 
-exit
 
+
+
+run_() {
+	greeting
+	select_disk
+	installtion_process
+        tweaking
+        grub_install
+
+	
+
+}
+
+
+
+parse_options() {
+	if [ $# -lt 1 ]; then
+		print_help
+	else
+		while [ "$1" ]; do
+			case "${1}" in
+				--run)
+					SETUP_RUN="yes"
+                                        ;;
+				-v|--version)
+					echo "`basename ${COMMAND}` $VERSION"
+					exit 0
+					;;
+				--cal)
+					echo ""
+					;;
+				-h|--help)
+					print_help
+					exit 0
+					;;
+				*)
+					echo "`basename ${COMMAND}`: invalid option $1"
+					exit 1
+					;;
+			esac
+			shift
+		done
+	fi
+}
+
+main () {
+	parse_options "$@"
+	ALL_LIST=$@
+
+	
+        if [ "$SETUP_RUN" == "yes" ]; then
+		
+		run_
+               
+	fi
+
+}
+
+
+
+
+
+
+
+
+
+########################
+#### end of funtion ####
+########################
+
+parse_options "$@"
+
+ main "$@"

@@ -8,9 +8,9 @@
 #
 LIVEKITNAME="LFSkit"
 VER_OS="v1"
-CODE_NAME="myown"
+CODE_NAME="myOS"
 
-
+#
 #  
 #
 TGT_LIVE_DISK_FILE="$TGT_REMASTER/LFS.iso"
@@ -48,7 +48,7 @@ INSTALLER_ENABLED=y
 # 
 #
 DISTNAME="$LIVEKITNAME"
-INITRD_FILE="/boot/initrd.img-$(uname -r)-build"
+INITRD_FILE="/boot/initrd.img-$(uname -r)"
 SRC_ISO="$(pwd)/baseiso/$(uname -m)"
 KERNEL_FILE="$(cat /proc/cmdline | sed -e 's/^.*BOOT_IMAGE=//' -e 's/ .*$//')"
 
@@ -60,59 +60,71 @@ KERNEL_FILE="$(cat /proc/cmdline | sed -e 's/^.*BOOT_IMAGE=//' -e 's/ .*$//')"
 # e2fsprogs
 #
 EFS_FILE="e2fsprogs-1.43.4.tar.gz"
-EFS_SRC="http://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.43.4/$EFS_FILE"
+EFS_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$EFS_FILE"
 
 #
 # util-linux
 #
 UTILS_LINUX_FILE="util-linux-2.29.1.tar.xz"
-UTILS_lINUX_SRC="https://www.kernel.org/pub/linux/utils/util-linux/v2.29/$UTILS_LINUX_FILE"
+UTILS_lINUX_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$UTILS_LINUX_FILE"
 
 #
 # Busybox
 #
 BUSYBOX_FILE="busybox-1.27.2.tar.bz2"
-BUSYBOX_SRC="https://busybox.net/downloads/$BUSYBOX_FILE"
+BUSYBOX_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$BUSYBOX_FILE"
 
 #
 # ncurses
 #
 NCURSES_FILE="ncurses-6.0.tar.gz"
-NCURSES_SRC="http://ftp.gnu.org/gnu//ncurses/$NCURSES_FILE	"
+NCURSES_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$NCURSES_FILE"
 
 #
 # Zlib
 #
 ZLIB_FILE="zlib-1.2.8.tar.gz"
-ZLIB_SRC="http://downloads.sourceforge.net/libpng/$ZLIB_FILE"
+ZLIB_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$ZLIB_FILE"
 
 #
 # netplug + patch
 #
 NETPLUG_FILE="netplug-1.2.9.2.tar.bz2"
 NETPLUGP_FILE="netplug-1.2.9.2-fixes-1.patch"
-NETPLUG_SRC="http://www.red-bean.com/~bos/netplug/$NETPLUG_FILE"
-NETPLUGP_SRC="http://patches.clfs.org/embedded-dev/$NETPLUGP_FILE"
+NETPLUG_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$NETPLUG_FILE"
+NETPLUGP_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$NETPLUGP_FILE"
 
 #
 # dropbear
 #
 DROPBEAR_FILE="dropbear-2013.60.tar.bz2"
-DROPBEAR_SRC="http://matt.ucc.asn.au/dropbear/releases/$DROPBEAR_FILE"
+DROPBEAR_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$DROPBEAR_FILE"
 
 #
 # wireless tools
 #
 WT_FILE="wireless_tools.29.tar.gz"
-WT_SRC="http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/$WT_FILE"
+WT_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$WT_FILE"
 
 #
 # grub os prober
 #
 GRUB_OSPROBERFILE="os-prober_1.76.tar.xz"
-GRUB_OSPROBER="http://http.debian.net/debian/pool/main/o/os-prober/$GRUB_OSPROBERFILE"
+GRUB_OSPROBER="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$GRUB_OSPROBERFILE"
 
 #
 # dialog 
 #
 DIALOG_FILE="dialog.tar.gz"
+
+#
+# popt
+#
+POPT_FILE="popt-1.16.tar.gz"
+POPT_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$POPT_FILE"
+
+#
+# rsync
+#
+RSYNC_FILE="rsync-3.1.3.tar.gz"
+RSYNC_SRC="https://jaist.dl.sourceforge.net/project/lfs-linux-kolomonggo/LFSKIT-repo/$RSYNC_FILE"

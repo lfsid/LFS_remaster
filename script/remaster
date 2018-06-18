@@ -29,6 +29,8 @@ echo ""
 }
 
 build_dir(){
+        rm -rf -v $TGT_LIVE_DISK/* >/dev/null 2>/dev/null
+        mkdir -pv $TGT_LIVE_DISK/$LIVEKITNAME >/dev/null 2>/dev/null
         echo "//   creating some dir in $TGT_REMASTER "
 
 	mkdir -pv $TGT_LIVE_DISK $TGT_SQUASHFS >/dev/null 2>/dev/null
@@ -67,11 +69,10 @@ copying_root(){
 }
 
 copying_baseiso(){
-        rm -rf -v $TGT_LIVE_DISK/* >/dev/null 2>/dev/null
-        mkdir -pv $TGT_LIVE_DISK/$LIVEKITNAME >/dev/null 2>/dev/null
+
 	cp -vpR $SRC_ISO/* $TGT_LIVE_DISK >/dev/null 2>/dev/null
-        cp -vpR $(pwd)/bootlogo.png $TGT_LIVE_DISK/boot >/dev/null 2>/dev/null
-        cp -vpR /boot/initrd.img-$(uname -r)-build $TGT_LIVE_DISK/boot/initrfs.img >/dev/null 2>/dev/null
+        cp -v $(pwd)/bootlogo.png $TGT_LIVE_DISK/boot/ >/dev/null 2>/dev/null
+        cp -vpR $INITRD_FILE $TGT_LIVE_DISK/boot/initrfs.img >/dev/null 2>/dev/null
         cp -vpR $KERNEL_FILE $TGT_LIVE_DISK/boot/vmlinuz >/dev/null 2>/dev/null
         sleep 3
 }
@@ -96,16 +97,20 @@ echo ""
 
 	cd $TGT_SQUASHFS
          echo "//   removing old squashfs file if exist "
-	rm -v $TGT_SQUASHFS_FILE  >/dev/null 2>/dev/null
-         echo "//   making a squashfs file $TGT_SQUASHFS_FILE "
-        $TERMINAL_TOOLS  mksquashfs . $TGT_SQUASHFS_FILE 
+	 rm -v $TGT_SQUASHFS_FILE  >/dev/null 2>/dev/null
+         echo "//   making a squashfs file  "
+         for file in $(ls)
+	 do
+	 	mksquashfs $file ../$file.$BEXT -keep-as-directory 
+	 done 
+
 }
 
 copying_squashfs(){
    
-         echo "//   copying $TGT_SQUASHFS_FILE to $TGT_LIVE_DISK/$LIVEKITNAME/ "
+         echo "//   copying some_file.$BEXT to $TGT_LIVE_DISK/$LIVEKITNAME/ "
 	cd $TGT_LIVE_DISK/$LIVEKITNAME/
-	 cp -v  $TGT_SQUASHFS_FILE .  >/dev/null 2>/dev/null
+	 mv -v  $TGT_REMASTER/*.$BEXT .  >/dev/null 2>/dev/null
 }
 
 build_iso(){

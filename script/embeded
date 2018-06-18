@@ -400,6 +400,31 @@ echo "// installing $DIALOG_FILE"
                 make DESTDIR=$TGT_TMP_INITRD install-dropbear >/dev/null 2>/dev/null
 
   cd  $WORK_DIR
+	echo "// extracting $POPT_FILE"
+	        $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$POPT_FILE
+       		cd popt*
+	echo "// configuring $POPT_FILE"
+        	$TERMINAL_TOOLS ./configure --prefix=/usr --disable-static 
+
+	echo "// compiling $POPT_FILE"
+       		$TERMINAL_TOOLS make 
+	echo "// installing $POPT_FILE"
+                $TERMINAL_TOOLS make DESTDIR=$TGT_TMP_INITRD  install  
+
+  cd  $WORK_DIR
+
+	echo "// extracting $RSYNC_FILE"
+	        $TERMINAL_TOOLS  tar -xf $SRC_PKG_DIR/$RSYNC_FILE
+       		cd rsync*
+	echo "// configuring $RSYNC_FILE"
+        	$TERMINAL_TOOLS ./configure --prefix=/usr --without-included-zlib
+
+	echo "// compiling $RSYNC_FILE"
+       		$TERMINAL_TOOLS make 
+	echo "// installing $RSYNC_FILE"
+                $TERMINAL_TOOLS make DESTDIR=$TGT_TMP_INITRD  install  
+
+  cd  $WORK_DIR
 
 }
 

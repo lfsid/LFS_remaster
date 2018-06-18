@@ -104,6 +104,26 @@ fi
 cd $SRC_PKG_DIR
 
 
+if [ -f "$POPT_FILE" ];
+then
+   echo "   // File  $POPT_FILE exist."
+else
+   echo "   -- File  $POPT_FILE does not exist, add to download list" 
+echo "$POPT_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+
+cd $SRC_PKG_DIR
+
+if [ -f "$RSYNC_FILE" ];
+then
+   echo "   // File  $RSYNC_FILE exist."
+else
+   echo "   -- File  $RSYNC_FILE does not exist, add to download list" 
+echo "$RSYNC_SRC" >> $SRC_PKG_DIR/pkg-list
+fi
+
+cd $SRC_PKG_DIR
+
 
 
 

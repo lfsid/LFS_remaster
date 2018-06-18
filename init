@@ -25,13 +25,14 @@ clear
 transfer_initramfs
 
 
-
+# please don't  edit this line
+ 
 MEMORY=/memory
 CHANGES=$MEMORY/changes
 UNION=$MEMORY/union
 DATAMNT=$MEMORY/data
 BUNDLES=$MEMORY/bundles
-
+# end of don't edit 
 
 
 ############# end of all fuction #############
@@ -110,8 +111,8 @@ header "//$DISTNAME Live Kit init start"
 		
 		header "// running installation tool via initramfs "
                 cd $UNION
-		manifesto   
-                /bin/installer
+#		manifesto   
+                /bin/installer 
         elif grep -q recovery /proc/cmdline; then
                 /linuxrc
 	

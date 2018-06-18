@@ -76,7 +76,7 @@ do_mount_root()
    esac
 
    while [ ! -b "$device" ] ; do
-       no_device $device
+       no_devicetgt $device
        problem
    done
 

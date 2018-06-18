@@ -21,7 +21,7 @@ PWDN=$(pwd)
 
 readonly COMMAND="$0"
 readonly SETUP_ARCH="`uname -m`"
-readonly VERSION="1.0"
+readonly VERSION="1.10"
 
 
 
@@ -36,7 +36,7 @@ readonly VERSION="1.0"
 
 # on development
 build_initrd(){
-     download_function
+                          download_function
                           main_tools
                           
                           if [ "$EMBEDED_INITRD" == "y" ]; then
@@ -56,11 +56,11 @@ build_live(){
 	
         greating_remaster
 	build_dir
-	copying_baseiso
 	copying_root
         copying_system
         squashing_
         copying_squashfs
+	copying_baseiso
         deploy_sys_iso_linux
 	build_iso
 	echo ""
@@ -69,7 +69,23 @@ build_live(){
 
 
 }
-
+config_(){
+			cd  menu 
+			make clean
+			make -C .
+			cd ../lib
+			../menu/mconf Config.in .config
+}
+config_re(){
+			cd   lib
+			rm -v .config
+			cd ../menu 
+			make clean
+			make -C .
+			cd ../lib
+			
+			../menu/mconf Config.in .config
+}
 
 
 
@@ -462,7 +478,7 @@ echo "// extracting e2fsprogs"
 
 
 os_prober # look at script/grub-osprober
-
+cp -v $(pwd)/bootlogo.png $TGT_TMP_INITRD/custom/etc/default/grub.png >/dev/null 2>/dev/null
 
 cd $PWDN
 
@@ -533,7 +549,7 @@ fi
 
 cd $TGT_TMP
 
-echo "// creating inirrd.img-$(uname -r)-build to /boot dir "
+echo "// creating $INITRD_FILE to /boot dir "
 pushd newinit   >/dev/null 2>/dev/null
 find . | cpio -o -H newc -F ../initrd   >/dev/null 2>/dev/null
 popd  >/dev/null 2>/dev/null
@@ -552,7 +568,7 @@ echo "// -- DONE --"
 ###################################
 
 print_help() {
-        echo -e $white
+       
         
        
         echo " 01      110101   01011         10  00  00  101100    "
@@ -566,13 +582,17 @@ print_help() {
         echo "under GPLv2 or later license this tools only build for remastering "
         echo "LFS based OS with AUFS and squashfs tools , initramfs based on linux live kit"
         echo ""
-        echo -e $white"usage: `basename $COMMAND` [options]"
+        echo "usage: `basename $COMMAND` [options]"
 	echo "options"
         echo ""
-	echo " --remastering        remastering running LFS based distro and build iniramfs"
+	echo " --remastering         remastering running LFS based distro and build iniramfs"
 	echo ""
-        echo " --build-initrd       build initramfs" 
-	echo " --config             edit .config file in $PWDN/lib "
+        echo " --build-initrd        build initramfs" 
+	echo " --config              edit .config file in $PWDN/lib "
+	echo " --reconfig            reconfigure to default .config"
+	echo ""
+	echo " --build-squashfs      rebuild squashfs file"
+	echo " --build-iso           rebuild iso from the last build"
 	echo ""
         echo " -h,   --help      Show the help"
 	echo " -v,   --version   Show the version"
@@ -591,14 +611,17 @@ parse_options() {
 				--remastering)
 					SETUP_REMASTERING="yes"
                                         ;;
-				--grabing-sources)
-					SETUP_SOURCES="yes"
+				--build-iso)
+					SETUP_ISO="yes"
 					;;
 				--config)
 					SETUP_CONFIG="yes"
 					;;
-				--prepare)
-					SETUP_PREPARE="yes"
+				--reconfig)
+					SETUP_RECONFIG="yes"
+					;;
+				--build-squashfs)
+					SETUP_SQFS="yes"
 					;;
 				-v|--version)
 					echo "`basename ${COMMAND}` $VERSION"
@@ -631,8 +654,17 @@ parse_options_() {
 				--remastering)
 					SETUP_REMASTERING="yes"
                                         ;;
+				--build-squashfs)
+					SETUP_SQFS="yes"
+					;;
+				--build-iso)
+					SETUP_ISO="yes"
+					;;				
 				--config)
 					SETUP_CONFIG="yes"
+					;;
+				--reconfig)
+					SETUP_RECONFIG="yes"
 					;;
 				
 			esac
@@ -679,18 +711,50 @@ main () {
                                   
         elif [ "$SETUP_CONFIG" == "yes" ]; then
 		 if [ "$ALL_LIST" == "--config" ]; then
-			cd menu 
-			make clean
-			make -C .
-			cd ../lib
-			../menu/mconf Config.in .config
+			config_
 
                  else 
                         echo -e $red ""
                         echo "Option Error"
                         echo "you can't parse --remastering  with another Option"
                         print_help
-                 fi               
+                 fi           
+        elif [ "$SETUP_RECONFIG" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--reconfig" ]; then
+			config_re
+
+                 else 
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --remastering  with another Option"
+                        print_help
+                 fi      
+	elif [ "$SETUP_ISO" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--build-iso" ]; then
+			copying_baseiso
+        		deploy_sys_iso_linux
+			build_iso
+			echo ""
+			echo " DONE "
+			echo ""
+
+                 else 
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --remastering  with another Option"
+                        print_help
+                 fi          
+	elif [ "$SETUP_SQFS" == "yes" ]; then
+		 if [ "$ALL_LIST" == "--build-squashfs" ]; then
+			squashing_
+			copying_squashfs
+
+                 else 
+                        echo -e $red ""
+                        echo "Option Error"
+                        echo "you can't parse --remastering  with another Option"
+                        print_help
+                 fi 
       
 
        
